@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\DocumentDownloadController;
+use App\Http\Controllers\ReportExportController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -89,6 +90,7 @@ Route::middleware('auth')->group(function (): void {
         // Monitoring, Tiket Tindak Lanjut & Evaluasi Nilai Ekonomis
         Route::livewire('/monitoring', 'pages.monitoring.followup-economic')->name('monitoring.index');
         Route::livewire('/nilai-ekonomis', 'pages.monitoring.economic-evaluation')->name('economic.index');
+        Route::get('/monitoring/economic-evaluation/{periode}/export-pdf', [ReportExportController::class, 'downloadEconomicEvaluationPdf'])->name('economic.export-pdf');
 
         // Data Master
         Route::livewire('/master/wilayah', 'pages.master.wilayah')->name('master.wilayah');

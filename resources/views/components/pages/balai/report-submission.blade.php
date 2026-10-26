@@ -162,67 +162,27 @@ new #[Layout('layouts.app')] #[Title('Input & Checklist Laporan Anggaran Balai')
             abort(403, 'Akses Ditolak: Anda tidak dapat mengirim laporan untuk balai lain.');
         }
 
-        $laporan = LaporanAnggaran::firstOrNew([
-            'balai_id' => $this->balaiId,
-            'periode_id' => $this->periodeId,
-        ]);
+        try {
+            app(\App\Actions\SubmitLaporanAnggaranAction::class)->execute(
+                $this->balaiId,
+                $this->periodeId,
+                $this->rencanaAnggaran,
+                $this->realisasiAnggaran,
+                $this->catatanBalai,
+                $user
+            );
 
-        if ($laporan->exists) {
-            Gate::authorize('update', $laporan);
-        } else {
-            Gate::authorize('create', LaporanAnggaran::class);
+            $this->loadLaporanData();
+            $this->successMessage = 'Laporan anggaran berhasil disimpan dan dikirim ke Admin Dinas untuk verifikasi!';
+        } catch (\DomainException $e) {
+            $this->errorMessage = $e->getMessage();
         }
-
-        $serapan = $this->rencanaAnggaran > 0
-            ? round(($this->realisasiAnggaran / $this->rencanaAnggaran) * 100, 2)
-            : 0.0;
-
-        $laporan->rencana_anggaran = $this->rencanaAnggaran;
-        $laporan->realisasi_anggaran = $this->realisasiAnggaran;
-        $laporan->persentase_serapan = $serapan;
-        $laporan->catatan_balai = $this->catatanBalai;
-        $laporan->status_laporan = ReportStatus::Submitted;
-        $laporan->save();
-
-        // Pastikan dokumen checklist dibuat
-        if ($laporan->dokumenLaporan()->count() === 0) {
-            $periode = PeriodeAnggaran::find($this->periodeId);
-            $dokWajib = $periode?->dokumen_wajib_json ?? [
-                'Laporan Realisasi Anggaran (LRA)',
-                'Surat Pertanggungjawaban Mutlak (SPTJM)',
-                'Buku Kas Umum & Kuitansi',
-                'Dokumentasi Kegiatan',
-                'Rencana Kebutuhan Tahap II',
-            ];
-            foreach ($dokWajib as $namaDok) {
-                DokumenLaporan::create([
-                    'laporan_id' => $laporan->id,
-                    'nama_dokumen_wajib' => $namaDok,
-                    'status_validasi' => 'kurang',
-                ]);
-            }
-        }
-
-        // Simpan tgl_submit_pertama hanya jika belum pernah disubmit (tidak berubah saat resubmit)
-        if (! $laporan->tgl_submit_pertama) {
-            $allComplete = $laporan->dokumenLaporan()->where('status_validasi', '!=', 'lengkap')->count() === 0
-                && $laporan->dokumenLaporan()->count() > 0;
-
-            $laporan->update([
-                'tgl_submit_pertama' => Carbon::now(),
-                'lengkap_pengiriman_pertama' => $allComplete,
-            ]);
-        }
-
-        $this->loadLaporanData();
-        $this->successMessage = 'Laporan anggaran berhasil disimpan dan dikirim ke Admin Dinas untuk verifikasi!';
     }
 
     public function uploadDokumen(int $dokumenId): void
     {
         $this->resetValidation();
         $dok = DokumenLaporan::with('laporanAnggaran')->findOrFail($dokumenId);
-        Gate::authorize('upload', $dok);
 
         $this->validate([
             "documentFiles.{$dokumenId}" => [
@@ -240,26 +200,21 @@ new #[Layout('layouts.app')] #[Title('Input & Checklist Laporan Anggaran Balai')
 
         $uploaded = $this->documentFiles[$dokumenId];
 
-        // Hapus file lama jika ada di private disk
-        if ($dok->file_path && Storage::disk('local')->exists($dok->file_path)) {
-            Storage::disk('local')->delete($dok->file_path);
+        try {
+            app(\App\Actions\UploadDokumenLaporanAction::class)->execute(
+                $dok,
+                $uploaded,
+                Auth::user()
+            );
+
+            unset($this->documentFiles[$dokumenId]);
+            $this->dokumenStatuses[$dokumenId] = 'lengkap';
+            $this->successMessage = 'Dokumen "'.$dok->nama_dokumen_wajib.'" berhasil diunggah.';
+        } catch (\DomainException $e) {
+            $this->errorMessage = $e->getMessage();
         }
-
-        $ext = $uploaded->getClientOriginalExtension() ?: 'pdf';
-        $storedName = Str::uuid()->toString().'.'.$ext;
-        $path = $uploaded->storeAs('dokumen_laporan/'.$dok->laporan_id, $storedName, 'local');
-
-        $dok->update([
-            'file_path' => $path,
-            'file_name' => $uploaded->getClientOriginalName(),
-            'file_size' => $uploaded->getSize(),
-            'status_validasi' => 'lengkap',
-        ]);
-
-        unset($this->documentFiles[$dokumenId]);
-        $this->dokumenStatuses[$dokumenId] = 'lengkap';
-        $this->successMessage = 'Dokumen "'.$dok->nama_dokumen_wajib.'" berhasil diunggah.';
     }
+
 
     public function deleteDokumen(int $dokumenId): void
     {

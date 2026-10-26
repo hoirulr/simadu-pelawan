@@ -86,47 +86,35 @@ new #[Layout('layouts.app')] #[Title('Tiket Dukungan & Tindak Lanjut')] class ex
 
         if ($this->selectedTicketId) {
             $ticket = TindakLanjutMonitoring::with('laporanAnggaran')->findOrFail($this->selectedTicketId);
-            Gate::authorize('update', $ticket);
 
-            $filePath = $ticket->file_bukti_koreksi;
-            if ($this->fileBuktiUpload) {
-                if ($filePath && Storage::disk('local')->exists($filePath)) {
-                    Storage::disk('local')->delete($filePath);
-                }
-                $ext = $this->fileBuktiUpload->getClientOriginalExtension() ?: 'pdf';
-                $filename = Str::uuid()->toString().'.'.$ext;
-                $filePath = $this->fileBuktiUpload->storeAs('bukti_koreksi/'.$ticket->id, $filename, 'local');
+            try {
+                app(\App\Actions\SubmitTindakLanjutAction::class)->execute(
+                    $ticket,
+                    $this->catatanBalai,
+                    $this->fileBuktiUpload,
+                    Auth::user()
+                );
+
+                $this->feedbackMessage = 'Penjelasan dan bukti tindak lanjut berhasil dikirim ke Admin Dinas (Status: In Progress).';
+                $this->showResponseModal = false;
+            } catch (\DomainException $e) {
+                $this->addError('catatanBalai', $e->getMessage());
             }
-
-            $ticket->update([
-                'catatan_balai' => $this->catatanBalai,
-                'file_bukti_koreksi' => $filePath,
-                'status' => 'In Progress',
-            ]);
-
-            $this->feedbackMessage = 'Penjelasan dan bukti tindak lanjut berhasil dikirim ke Admin Dinas (Status: In Progress).';
-            $this->showResponseModal = false;
         }
     }
 
     public function verifyTicket(int $ticketId): void
     {
         $ticket = TindakLanjutMonitoring::with(['ewsAlert', 'laporanAnggaran'])->findOrFail($ticketId);
-        Gate::authorize('verify', $ticket);
 
-        $ticket->update([
-            'status' => 'Verified',
-            'waktu_selesai_verifikasi' => Carbon::now(),
-            'verified_by' => Auth::id() ?? 1,
-        ]);
-
-        // Jika tiket terikat ke EWS Alert, tandai Resolved
-        if ($ticket->ewsAlert) {
-            $ticket->ewsAlert->update(['status_ews' => EwsStatus::Resolved]);
+        try {
+            app(\App\Actions\VerifyTindakLanjutAction::class)->execute($ticket, Auth::user());
+            $this->feedbackMessage = 'Tiket perbaikan telah berhasil diverifikasi Tuntas (Resolved).';
+        } catch (\DomainException $e) {
+            $this->feedbackMessage = 'Gagal verifikasi tiket: '.$e->getMessage();
         }
-
-        $this->feedbackMessage = 'Tiket perbaikan telah berhasil diverifikasi Tuntas (Resolved).';
     }
+
 
     public function with(): array
     {

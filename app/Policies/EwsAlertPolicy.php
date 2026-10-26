@@ -10,6 +10,14 @@ use App\Models\User;
 class EwsAlertPolicy
 {
     /**
+     * Determine whether the user can view any EWS alerts.
+     */
+    public function viewAny(User $user): bool
+    {
+        return $user->isAdmin() || $user->isOperatorBalai();
+    }
+
+    /**
      * Determine whether the user can view the EWS alert.
      */
     public function view(User $user, EwsAlert $alert): bool
@@ -24,6 +32,14 @@ class EwsAlertPolicy
     }
 
     /**
+     * Determine whether the user can create EWS alerts.
+     */
+    public function create(User $user): bool
+    {
+        return $user->isAdmin();
+    }
+
+    /**
      * Determine whether the user can update the EWS alert.
      */
     public function update(User $user, EwsAlert $alert): bool
@@ -35,6 +51,14 @@ class EwsAlertPolicy
      * Determine whether the user can delete the EWS alert.
      */
     public function delete(User $user, EwsAlert $alert): bool
+    {
+        return $user->isAdmin();
+    }
+
+    /**
+     * Determine whether the user can resolve the EWS alert.
+     */
+    public function resolve(User $user, EwsAlert $alert): bool
     {
         return $user->isAdmin();
     }

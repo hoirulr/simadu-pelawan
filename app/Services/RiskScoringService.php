@@ -32,7 +32,7 @@ class RiskScoringService
             return 0; // Tepat waktu
         }
 
-        $daysLate = $submitTime->diffInDays($deadline);
+        $daysLate = (int) abs($submitTime->diffInDays($deadline));
 
         if ($daysLate <= 2) {
             return 1; // Terlambat ringan / dalam batas toleransi
@@ -43,6 +43,7 @@ class RiskScoringService
         }
 
         return 3; // Melewati batas waktu > 5 hari
+
     }
 
     /**

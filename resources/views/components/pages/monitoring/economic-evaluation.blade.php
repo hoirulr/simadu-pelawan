@@ -76,15 +76,24 @@ new #[Layout('layouts.app')] #[Title('Evaluasi Nilai Ekonomis & Kinerja Inovasi'
                 </select>
             </div>
 
+            <a href="{{ route('economic.export-pdf', $selectedPeriode->id) }}"
+               class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold shadow-theme-xs flex items-center gap-2 transition">
+                <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                <span>Unduh PDF Resmi</span>
+            </a>
+
             <button type="button" onclick="window.print()"
                     class="px-4 py-2.5 rounded-xl bg-gray-900 hover:bg-black text-white dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 text-sm font-semibold shadow-theme-xs flex items-center gap-2 transition">
                 <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                 </svg>
-                <span>Cetak Rekapitulasi (PDF)</span>
+                <span>Cetak Lembar</span>
             </button>
         </div>
     </div>
+
 
     <!-- Official Document Header (Visible only when Printing) -->
     <div class="hidden print:block text-center border-b-2 border-gray-900 pb-4 mb-6">

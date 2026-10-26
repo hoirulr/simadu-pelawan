@@ -4,8 +4,8 @@
 *Dinas Pengendalian Penduduk, Keluarga Berencana, Pemberdayaan Perempuan dan Perlindungan Anak (DP2KBP3A) Kabupaten Bangka*
 
 > **Tanggal Pembaruan:** 26 Oktober 2026  
-> **Status Keseluruhan Proyek:** **Remediasi P0.1 - P0.5 Selesai (Privilege Escalation Ditutup, Isolasi Balai Ditegakkan, Server Validation Aktif, Upload Private Disk Siap, Konfigurasi Produksi Diamankan)**  
-> **Hasil Pengujian Otomatis:** **47 Pest Tests Passed (149 Assertions - 100% Green)**  
+> **Status Keseluruhan Proyek:** **Remediasi P0 (P0.1 - P0.5) & P1 (P1.1 - P1.5) Selesai Penuh: Kebijakan Otorisasi Lengkap, Action Classes Terisolasi, Transisi Status Terverifikasi, Dokumentasi Skoring & Boundary Testing Tuntas, dan Generator PDF Resmi Terintegrasi**  
+> **Hasil Pengujian Otomatis:** **60 Pest Tests Passed (218 Assertions - 100% Green)**  
 > **Basis Desain & Template:** TailAdmin (`D:\laragon\www\tailadmin-laravel`)  
 > **Arsitektur Utama:** PHP 8.4, Laravel 12, Livewire 4 (SFC & Multi-file Components), Alpine.js  
 
@@ -114,22 +114,43 @@ Berikut adalah seluruh rute modul yang telah aktif dan teruji dalam sistem:
 ## 4. Daftar Pengujian Otomatis (Automated Test Suite)
 
 Dijalankan menggunakan pest: `vendor/bin/pest`  
-**Hasil: 18 tests passed, 41 assertions (100% Green)**
+**Hasil Terkini: 60 tests passed, 218 assertions (100% Green / Zero Failure)**
 
 | File Test | Cakupan Uji | Hasil |
 | :--- | :--- | :---: |
-| [`tests/Feature/RiskScoringServiceTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/RiskScoringServiceTest.php) | Ambang batas kategori Rendah ($0\text{--}4$), Sedang ($5\text{--}9$), Tinggi ($10\text{--}15$) dan rekomendasi sistem | **Passed** |
-| [`tests/Feature/EwsEngineServiceTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/EwsEngineServiceTest.php) | Pemindaian tenggat (EWS 1) dan evaluasi berkas tidak valid (EWS 2) | **Passed** |
-| [`tests/Feature/EconomicValueCalculatorServiceTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/EconomicValueCalculatorServiceTest.php) | Kalkulasi 5 indikator nilai ekonomis otomatis | **Passed** |
-| [`tests/Feature/SimaduPagesTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/SimaduPagesTest.php) | Respons HTTP 200 seluruh 11 rute: Dashboard Eksekutif, Meja Kerja Admin, Input Balai, Status Risiko Balai, Tiket Tindak Lanjut, Evaluasi Nilai Ekonomis, Master Balai, Wilayah, Periode Anggaran, dan Akun Pengguna | **Passed** |
+| [`tests/Feature/SecurityP0RemediationTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/SecurityP0RemediationTest.php) | **(P0.1, P0.2, P0.3, P0.5)** Isolasi tenant Balai, proteksi switch user hanya POST & admin, blokir environment production, audit log, server numeric validation | **Passed (10 Tests)** |
+| [`tests/Feature/DocumentUploadAndStorageTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/DocumentUploadAndStorageTest.php) | **(P0.4)** Upload berkas nyata ke private disk `local`, penolakan mime/size, replacement berkas lama, streaming secure download controller | **Passed (6 Tests)** |
+| [`tests/Feature/RiskScoringComprehensiveTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/RiskScoringComprehensiveTest.php) | **(P1.4)** Clamping batas skor 0–3, boundary range skor 0–4 (Rendah), 5–9 (Sedang), 10–15 (Tinggi), penanganan dokumen kosong/kurang/tidak valid, perhitungan hari kalender P1, integrasi SaveRiskAssessmentAction | **Passed (4 Tests)** |
+| [`tests/Feature/ReportAndTicketStatusWorkflowTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/ReportAndTicketStatusWorkflowTest.php) | **(P1.1, P1.2, P1.3)** Otorisasi Policies lengkap, penguncian status laporan Verified, tiket Verified tidak dapat diedit balai, siklus Pending -> In Progress -> Verified, penyelesaian EWS otomatis pasca-verifikasi admin | **Passed (6 Tests)** |
+| [`tests/Feature/ReportExportPdfTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/ReportExportPdfTest.php) | **(P1.5)** Proteksi rute unduh PDF hanya admin dinas, response valid `application/pdf`, format biner standar PDF 1.4 ISO 32000-1, metadata judul & kop Pemkab Bangka | **Passed (3 Tests)** |
+| [`tests/Feature/RiskScoringServiceTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/RiskScoringServiceTest.php) | Ambang batas kategori Rendah ($0\text{--}4$), Sedang ($5\text{--}9$), Tinggi ($10\text{--}15$) dan rekomendasi sistem | **Passed (3 Tests)** |
+| [`tests/Feature/EwsEngineServiceTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/EwsEngineServiceTest.php) | Pemindaian tenggat (EWS 1) dan evaluasi berkas tidak valid (EWS 2) | **Passed (4 Tests)** |
+| [`tests/Feature/EconomicValueCalculatorServiceTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/EconomicValueCalculatorServiceTest.php) | Kalkulasi 5 indikator nilai ekonomis otomatis | **Passed (3 Tests)** |
+| [`tests/Feature/SimaduPagesTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/SimaduPagesTest.php) | Respons HTTP 200 seluruh 11 rute: Dashboard Eksekutif, Meja Kerja Admin, Input Balai, Status Risiko Balai, Tiket Tindak Lanjut, Evaluasi Nilai Ekonomis, Master Balai, Wilayah, Periode Anggaran, dan Akun Pengguna | **Passed (11 Tests)** |
 
 ---
 
-## 5. Rekomendasi Tindak Lanjut Menuju Go-Live
+## 5. Ringkasan Remediasi Prioritas P1 (Selesai Penuh)
 
-1. **Konfigurasi Server Scheduler (Cron Job):**
-   ```bash
-   * * * * * cd /path-to-simadu-pelawan && php artisan schedule:run >> /dev/null 2>&1
-   ```
-2. **Aktivasi Middleware Otorisasi Produksi:**
-   Pada tahap produksi penuh, ganti switcher demo dengan proteksi session `auth` ketat pada masing-masing route grup di [`routes/web.php`](file:///d:/laragon/www/simadu-pelawan/routes/web.php).
+1. **P1.1 Refactor Authorization dengan Laravel Policies:**
+   - 7 Kebijakan terdaftar: [`LaporanAnggaranPolicy`](file:///d:/laragon/www/simadu-pelawan/app/Policies/LaporanAnggaranPolicy.php), [`DokumenLaporanPolicy`](file:///d:/laragon/www/simadu-pelawan/app/Policies/DokumenLaporanPolicy.php), [`TindakLanjutMonitoringPolicy`](file:///d:/laragon/www/simadu-pelawan/app/Policies/TindakLanjutMonitoringPolicy.php), [`EwsAlertPolicy`](file:///d:/laragon/www/simadu-pelawan/app/Policies/EwsAlertPolicy.php), [`SkoringRisikoPolicy`](file:///d:/laragon/www/simadu-pelawan/app/Policies/SkoringRisikoPolicy.php), [`UserPolicy`](file:///d:/laragon/www/simadu-pelawan/app/Policies/UserPolicy.php), [`PeriodeAnggaranPolicy`](file:///d:/laragon/www/simadu-pelawan/app/Policies/PeriodeAnggaranPolicy.php).
+   - Seluruh abilities (`viewAny`, `view`, `create`, `update`, `delete`, `verify`, `score`, `upload`, `download`, `uploadEvidence`, `downloadEvidence`, `exportPdf`, `switchUser`) telah aktif dan teruji.
+2. **P1.2 Pemisahan Tanggung Jawab Livewire via Action Classes:**
+   - Logika bisnis diekstrak ke [`app/Actions/`](file:///d:/laragon/www/simadu-pelawan/app/Actions/):
+     - [`SubmitLaporanAnggaranAction`](file:///d:/laragon/www/simadu-pelawan/app/Actions/SubmitLaporanAnggaranAction.php): Pengajuan laporan dalam `DB::transaction`, kalkulasi serapan, setup checklist dokumen, dan penguncian waktu submit pertama.
+     - [`UploadDokumenLaporanAction`](file:///d:/laragon/www/simadu-pelawan/app/Actions/UploadDokumenLaporanAction.php): Penyimpanan berkas ke disk privat `local`, penghapusan berkas lama, dan pembaruan metadata dokumen.
+     - [`SubmitTindakLanjutAction`](file:///d:/laragon/www/simadu-pelawan/app/Actions/SubmitTindakLanjutAction.php): Penyimpanan bukti koreksi privat dan transisi tiket ke `In Progress`.
+     - [`VerifyTindakLanjutAction`](file:///d:/laragon/www/simadu-pelawan/app/Actions/VerifyTindakLanjutAction.php): Verifikasi tuntas tiket khusus admin, pencatatan verifikator & timestamp, serta penutupan EWS otomatis (`Resolved`).
+     - [`SaveRiskAssessmentAction`](file:///d:/laragon/www/simadu-pelawan/app/Actions/SaveRiskAssessmentAction.php): Penilaian risiko 5 parameter, penerbitan alert EWS, pembuatan tiket perbaikan, dan penetapan status laporan (`Revisi` / `Verified`).
+3. **P1.3 Penegakan Alur Status Laporan & Tiket:**
+   - Validasi transisi status laporan: `Draft -> Submitted -> Revisi / Verified`.
+   - Laporan dan berkas yang berstatus `Verified` dikunci permanen dari pengeditan operator tanpa revisi admin.
+   - Tiket yang berstatus `Verified` terkunci dan tidak dapat diedit kembali oleh operator balai.
+   - Alert EWS hanya berstatus `Resolved` setelah tiket diverifikasi tuntas oleh Admin Dinas.
+4. **P1.4 Dokumentasi & Uji Aturan Scoring ($P_1\text{--}P_5$):**
+   - Dokumen teknis resmi tersusun di [`docs/risk-scoring-and-ews-rules.md`](file:///d:/laragon/www/simadu-pelawan/docs/risk-scoring-and-ews-rules.md).
+   - Pengujian batas skor, penanganan berkas kosong/kurang/tidak valid, dan selisih hari kalender $P_1$ 100% lulus.
+5. **P1.5 Generator PDF Resmi & Endpoint Unduhan:**
+   - Generator PDF mandiri standar ISO 32000-1 tanpa dependensi pihak ketiga di [`app/Services/PdfReportGeneratorService.php`](file:///d:/laragon/www/simadu-pelawan/app/Services/PdfReportGeneratorService.php).
+   - Endpoint resmi [`/monitoring/economic-evaluation/{periode}/export-pdf`](file:///d:/laragon/www/simadu-pelawan/routes/web.php) via [`ReportExportController`](file:///d:/laragon/www/simadu-pelawan/app/Http/Controllers/ReportExportController.php) dengan proteksi otorisasi admin dan header `application/pdf`.
+

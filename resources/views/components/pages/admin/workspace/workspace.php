@@ -4,18 +4,12 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages\Admin\Workspace;
 
-use App\Enums\EwsCode;
-use App\Enums\EwsStatus;
-use App\Enums\ReportStatus;
-use App\Enums\RiskCategory;
+use App\Actions\SaveRiskAssessmentAction;
 use App\Models\BalaiPenyuluh;
 use App\Models\DokumenLaporan;
-use App\Models\EwsAlert;
 use App\Models\LaporanAnggaran;
 use App\Models\PeriodeAnggaran;
-use App\Models\TindakLanjutMonitoring;
 use App\Services\RiskScoringService;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
@@ -130,60 +124,29 @@ new #[Layout('layouts.app')] #[Title('Meja Kerja Pemeriksaan & Skoring')] class 
             return;
         }
 
-        Gate::authorize('score', $laporan);
-
-        $adminId = Auth::id() ?? 1;
-        $scoringService = app(RiskScoringService::class);
-
-        $scoring = $scoringService->saveScore(
-            $laporan,
-            $this->skorP1,
-            $this->skorP2,
-            $this->skorP3,
-            $this->skorP4,
-            $this->skorP5,
-            $adminId,
-            $this->catatanPenilai
-        );
-
-        // Jika total skor >= 5 atau ada instruksi perbaikan, picu tiket EWS
-        if ($scoring->total_skor >= 5 || ! empty($this->instruksiPerbaikan)) {
-            $ewsCode = match ($this->selectedEwsCode) {
-                'EWS_1' => EwsCode::EWS_1,
-                'EWS_3' => EwsCode::EWS_3,
-                default => EwsCode::EWS_2,
-            };
-
-            $alert = EwsAlert::updateOrCreate(
-                [
-                    'laporan_id' => $laporan->id,
-                    'kode_ews' => $ewsCode,
-                ],
-                [
-                    'level_ews' => $scoring->kategori_risiko->value,
-                    'kondisi_pemicu' => "Hasil skoring risiko: {$scoring->kategori_risiko->value} (Skor {$scoring->total_skor}/15).",
-                    'penanggung_jawab' => $this->penanggungJawab,
-                    'batas_waktu_koreksi' => Carbon::now()->addDays($this->hariBatasKoreksi),
-                    'status_ews' => $scoring->kategori_risiko === RiskCategory::Tinggi ? EwsStatus::Escalated : EwsStatus::Open,
-                ]
+        try {
+            $result = app(SaveRiskAssessmentAction::class)->execute(
+                $laporan,
+                $this->skorP1,
+                $this->skorP2,
+                $this->skorP3,
+                $this->skorP4,
+                $this->skorP5,
+                $this->catatanPenilai,
+                $this->selectedEwsCode,
+                $this->penanggungJawab,
+                $this->instruksiPerbaikan,
+                $this->hariBatasKoreksi,
+                Auth::user()
             );
 
-            if (! empty($this->instruksiPerbaikan)) {
-                TindakLanjutMonitoring::create([
-                    'laporan_id' => $laporan->id,
-                    'ews_id' => $alert->id,
-                    'instruksi_perbaikan' => $this->instruksiPerbaikan,
-                    'waktu_mulai_temuan' => Carbon::now(),
-                    'status' => 'Pending',
-                    'verified_by' => $adminId,
-                ]);
+            if ($result['alert']) {
+                $this->notificationMessage = "Penilaian tersimpan. Peringatan Dini ({$result['alert']->kode_ews->value}) dan tiket instruksi perbaikan berhasil diterbitkan.";
+            } else {
+                $this->notificationMessage = 'Penilaian tersimpan. Laporan dinyatakan Terverifikasi Tuntas (Risiko Rendah).';
             }
-
-            $laporan->update(['status_laporan' => ReportStatus::Revisi]);
-            $this->notificationMessage = "Penilaian tersimpan. Peringatan Dini ({$ewsCode->value}) dan tiket instruksi perbaikan berhasil diterbitkan.";
-        } else {
-            $laporan->update(['status_laporan' => ReportStatus::Verified]);
-            $this->notificationMessage = 'Penilaian tersimpan. Laporan dinyatakan Terverifikasi Tuntas (Risiko Rendah).';
+        } catch (\DomainException $e) {
+            $this->notificationMessage = 'Gagal menyimpan penilaian: '.$e->getMessage();
         }
     }
 
