@@ -313,10 +313,17 @@ new #[Layout('layouts.app')] #[Title('Master Akun Pengguna')] class extends Comp
                             </td>
                             <td class="py-3.5 px-4 text-center">
                                 @if(Auth::id() !== $u->id)
-                                    <a href="/switch-user/{{ $u->id }}"
-                                       class="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-gray-100 hover:bg-brand-50 hover:text-brand-600 text-gray-700 dark:bg-gray-800 dark:text-gray-300 transition">
-                                        Masuk Sebagai &rarr;
-                                    </a>
+                                    @if(!app()->isProduction())
+                                        <form method="POST" action="{{ route('switch.user', $u->id) }}" class="inline">
+                                            @csrf
+                                            <button type="submit"
+                                                    class="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-gray-100 hover:bg-brand-50 hover:text-brand-600 text-gray-700 dark:bg-gray-800 dark:text-gray-300 transition cursor-pointer">
+                                                Masuk Sebagai &rarr;
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-[11px] text-gray-400 italic">Nonaktif (Prod)</span>
+                                    @endif
                                 @else
                                     <span class="text-[11px] font-mono text-emerald-600 font-bold">Sedang Aktif</span>
                                 @endif

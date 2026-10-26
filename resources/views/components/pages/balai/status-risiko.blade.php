@@ -21,10 +21,10 @@ new #[Layout('layouts.app')] #[Title('Status Risiko & Peringatan Dini (EWS) Bala
     public function mount(): void
     {
         $user = Auth::user();
-        if ($user && $user->isOperatorBalai() && $user->balai_id) {
-            $this->balaiId = $user->balai_id;
+        if ($user && $user->isOperatorBalai()) {
+            $this->balaiId = (int) $user->balai_id;
         } elseif ($user && $user->balai_id) {
-            $this->balaiId = $user->balai_id;
+            $this->balaiId = (int) $user->balai_id;
         } elseif (request()->has('balai_id')) {
             $this->balaiId = (int) request('balai_id');
         }
@@ -38,14 +38,22 @@ new #[Layout('layouts.app')] #[Title('Status Risiko & Peringatan Dini (EWS) Bala
     public function updatedBalaiId(): void
     {
         $user = Auth::user();
-        if ($user && $user->isOperatorBalai() && $user->balai_id) {
-            $this->balaiId = $user->balai_id;
+        if ($user && $user->isOperatorBalai()) {
+            $this->balaiId = (int) $user->balai_id;
         }
     }
 
     public function with(): array
     {
-        $balaiList = BalaiPenyuluh::orderBy('id', 'asc')->get();
+        $user = Auth::user();
+        if ($user && $user->isOperatorBalai()) {
+            $this->balaiId = (int) $user->balai_id;
+        }
+
+        $balaiList = ($user && $user->isAdmin())
+            ? BalaiPenyuluh::orderBy('id', 'asc')->get()
+            : BalaiPenyuluh::where('id', $this->balaiId)->get();
+
         $periodes = PeriodeAnggaran::orderBy('tahun', 'desc')->get();
         $currentBalai = BalaiPenyuluh::find($this->balaiId);
         $currentPeriode = PeriodeAnggaran::find($this->periodeId);
@@ -54,6 +62,10 @@ new #[Layout('layouts.app')] #[Title('Status Risiko & Peringatan Dini (EWS) Bala
             ->where('periode_id', $this->periodeId)
             ->with(['skoringRisiko.penilai', 'dokumenLaporan', 'ewsAlerts', 'tindakLanjutMonitoring'])
             ->first();
+
+        if ($laporan) {
+            \Illuminate\Support\Facades\Gate::authorize('view', $laporan);
+        }
 
         $activeAlerts = $laporan
             ? $laporan->ewsAlerts->whereIn('status_ews', [EwsStatus::Open, EwsStatus::Escalated])

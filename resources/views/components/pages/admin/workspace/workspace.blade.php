@@ -124,11 +124,19 @@
                                     {{ $dok->nama_dokumen_wajib }}
                                 </h4>
                                 <div class="text-[11px] text-gray-400 font-mono mt-0.5">
-                                    @if($dok->file_name)
-                                        <span class="text-brand-600 dark:text-brand-400 underline cursor-pointer">
-                                            {{ $dok->file_name }}
-                                        </span>
-                                        <span>({{ round($dok->file_size / 1024, 0) }} KB)</span>
+                                    @if($dok->file_name && $dok->file_path)
+                                        <a href="{{ route('dokumen.download', $dok->id) }}"
+                                           target="_blank"
+                                           class="text-brand-600 dark:text-brand-400 underline font-semibold hover:text-brand-700 inline-flex items-center gap-1"
+                                           title="Unduh Berkas {{ $dok->file_name }}">
+                                            <svg class="size-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                            </svg>
+                                            <span>{{ $dok->file_name }}</span>
+                                        </a>
+                                        <span>({{ round(($dok->file_size ?: 0) / 1024, 0) }} KB)</span>
+                                    @elseif($dok->file_name)
+                                        <span class="text-gray-700 dark:text-gray-300 font-semibold">{{ $dok->file_name }}</span>
                                     @else
                                         <span class="text-amber-500 italic">Belum ada file terunggah</span>
                                     @endif

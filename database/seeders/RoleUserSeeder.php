@@ -13,6 +13,12 @@ class RoleUserSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->isProduction()) {
+            $this->command?->warn('Seeder akun demo dilewati pada lingkungan produksi demi keamanan.');
+
+            return;
+        }
+
         // 1. Akun Admin Dinas DP2KBP3A
         User::updateOrCreate(
             ['email' => 'admin@simadupelawan.go.id'],

@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Models\User;
+use Database\Seeders\LaporanDummySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -74,6 +75,15 @@ test('balai status risiko page returns 200 ok', function () {
     $response->assertOk();
     $response->assertSee('Status Risiko');
     $response->assertSee('Early Warning System');
+});
+
+test('balai status risiko page loads with existing laporan and tindak lanjut monitoring', function () {
+    $this->seed(LaporanDummySeeder::class);
+    $operator = User::where('role', UserRole::OperatorBalai)->first();
+    $response = $this->actingAs($operator)->get('/balai/status-risiko');
+    $response->assertOk();
+    $response->assertSee('Status Risiko');
+    $response->assertSee('Kategori Risiko Balai');
 });
 
 test('balai tindak lanjut page returns 200 ok', function () {

@@ -70,4 +70,9 @@ class LaporanAnggaran extends Model
     {
         return $this->hasMany(TindakLanjutMonitoring::class, 'laporan_id');
     }
+
+    public function tindakLanjutMonitoring(): HasMany
+    {
+        return $this->hasMany(TindakLanjutMonitoring::class, 'laporan_id');
+    }
 }

@@ -17,6 +17,7 @@ use App\Models\TindakLanjutMonitoring;
 use App\Services\RiskScoringService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -105,8 +106,10 @@ new #[Layout('layouts.app')] #[Title('Meja Kerja Pemeriksaan & Skoring')] class 
 
     public function updateDokumenStatus(int $dokumenId, string $status): void
     {
-        $dok = DokumenLaporan::find($dokumenId);
-        if ($dok && in_array($status, ['lengkap', 'kurang', 'tidak_valid'], true)) {
+        $dok = DokumenLaporan::findOrFail($dokumenId);
+        Gate::authorize('verify', $dok);
+
+        if (in_array($status, ['lengkap', 'kurang', 'tidak_valid'], true)) {
             $dok->update(['status_validasi' => $status]);
 
             // Re-calculate P2
@@ -126,6 +129,8 @@ new #[Layout('layouts.app')] #[Title('Meja Kerja Pemeriksaan & Skoring')] class 
         if (! $laporan) {
             return;
         }
+
+        Gate::authorize('score', $laporan);
 
         $adminId = Auth::id() ?? 1;
         $scoringService = app(RiskScoringService::class);

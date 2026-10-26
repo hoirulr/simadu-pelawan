@@ -36,6 +36,10 @@ new #[Layout('layouts.guest')] #[Title('Masuk ke Sistem')] class extends Compone
 
     public function quickLogin(string $email, string $password = 'password'): mixed
     {
+        if (app()->isProduction()) {
+            abort(403, 'Akses masuk demonstrasi dinonaktifkan pada lingkungan produksi.');
+        }
+
         $this->fillCredentials($email, $password);
 
         return $this->authenticate();
@@ -234,6 +238,7 @@ new #[Layout('layouts.guest')] #[Title('Masuk ke Sistem')] class extends Compone
                     </div>
                 </form>
 
+                @if(!app()->isProduction())
                 <!-- Quick Demo Login Presets -->
                 <div class="mt-7 pt-6 border-t border-gray-100 dark:border-gray-800">
                     <div class="flex items-center justify-between mb-3">
@@ -304,6 +309,7 @@ new #[Layout('layouts.guest')] #[Title('Masuk ke Sistem')] class extends Compone
                         </button>
                     </div>
                 </div>
+                @endif
             </div>
         </div>
     </main>

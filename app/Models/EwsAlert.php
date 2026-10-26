@@ -48,4 +48,9 @@ class EwsAlert extends Model
     {
         return $this->hasMany(TindakLanjutMonitoring::class, 'ews_id');
     }
+
+    public function tindakLanjutMonitoring(): HasMany
+    {
+        return $this->hasMany(TindakLanjutMonitoring::class, 'ews_id');
+    }
 }
