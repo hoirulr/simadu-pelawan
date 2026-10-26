@@ -126,11 +126,18 @@ test('operator balai can access balai specific pages', function (): void {
     }
 });
 
-test('user can log out and session is invalidated', function (): void {
+test('user can log out via POST and session is invalidated', function (): void {
     $admin = User::where('role', UserRole::Admin)->first();
 
-    $response = $this->actingAs($admin)->get('/logout');
+    $response = $this->actingAs($admin)->post('/logout');
     $response->assertRedirect('/');
 
     $this->assertGuest();
+});
+
+test('logout is rejected via GET method for CSRF hardening', function (): void {
+    $admin = User::where('role', UserRole::Admin)->first();
+
+    $response = $this->actingAs($admin)->get('/logout');
+    $response->assertStatus(405);
 });

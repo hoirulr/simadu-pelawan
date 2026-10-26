@@ -284,8 +284,9 @@ new #[Layout('layouts.app')] #[Title('Dashboard Eksekutif & Peta Risiko')] class
                     Peta Risiko & Realisasi 8 Balai Penyuluh KB
                 </h3>
                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                    Matriks penilaian 5 parameter risiko ($P_1\text{--}P_5$), capaian serapan, dan indikator EWS per Balai.
+                    Matriks penilaian 5 parameter risiko (P1–P5), capaian serapan, dan indikator EWS per Balai.
                 </p>
+
             </div>
             <div class="flex items-center gap-2 text-xs">
                 <span class="inline-flex items-center gap-1 text-gray-500"><span class="size-2 rounded-full bg-emerald-500"></span> Rendah (0-4)</span>

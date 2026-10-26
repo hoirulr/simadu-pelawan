@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BalaiPenyuluh;
 use App\Models\PeriodeAnggaran;
+use App\Services\AuditLoggerService;
 use App\Services\EconomicValueCalculatorService;
 use App\Services\PdfReportGeneratorService;
 use Illuminate\Http\Response;
@@ -34,6 +35,14 @@ class ReportExportController extends Controller
 
         $pdfContent = $pdfService->generateEconomicReportPdf($periode, $economicStats, $balaiList);
         $filename = "Rekapitulasi_Nilai_Ekonomis_{$periode->tahun}_{$periode->tahap}.pdf";
+
+        app(AuditLoggerService::class)->log(
+            'report.export_pdf',
+            $periode,
+            null,
+            ['filename' => $filename, 'periode_id' => $periode->id],
+            auth()->user()
+        );
 
         return response($pdfContent, 200, [
             'Content-Type' => 'application/pdf',

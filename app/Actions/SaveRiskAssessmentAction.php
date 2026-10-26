@@ -13,6 +13,7 @@ use App\Models\LaporanAnggaran;
 use App\Models\SkoringRisiko;
 use App\Models\TindakLanjutMonitoring;
 use App\Models\User;
+use App\Services\AuditLoggerService;
 use App\Services\RiskScoringService;
 use Carbon\Carbon;
 use DomainException;
@@ -130,6 +131,26 @@ class SaveRiskAssessmentAction
                 // Total skor <= 4 (Risiko Rendah) dan tanpa instruksi perbaikan -> Terverifikasi Tuntas
                 $laporan->update(['status_laporan' => ReportStatus::Verified]);
             }
+
+            app(AuditLoggerService::class)->log(
+                'skoring.save',
+                $scoring,
+                null,
+                [
+                    'laporan_id' => $laporan->id,
+                    'p1' => $p1,
+                    'p2' => $p2,
+                    'p3' => $p3,
+                    'p4' => $p4,
+                    'p5' => $p5,
+                    'total_skor' => $scoring->total_skor,
+                    'kategori_risiko' => $scoring->kategori_risiko->value,
+                    'status_laporan' => $laporan->status_laporan->value,
+                    'ews_code' => $alert?->kode_ews?->value,
+                    'ticket_created' => $ticket !== null,
+                ],
+                $admin
+            );
 
             return [
                 'skoring' => $scoring,

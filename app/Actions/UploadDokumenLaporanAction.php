@@ -7,6 +7,7 @@ namespace App\Actions;
 use App\Enums\ReportStatus;
 use App\Models\DokumenLaporan;
 use App\Models\User;
+use App\Services\AuditLoggerService;
 use DomainException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -31,7 +32,13 @@ class UploadDokumenLaporanAction
             throw new DomainException('Laporan telah berstatus Terverifikasi Tuntas sehingga berkas dokumen tidak dapat diganti.');
         }
 
-        return DB::transaction(function () use ($dokumen, $file) {
+        return DB::transaction(function () use ($dokumen, $file, $actor) {
+            $oldValues = $dokumen->file_path ? [
+                'file_name' => $dokumen->file_name,
+                'file_size' => $dokumen->file_size,
+                'status_validasi' => $dokumen->status_validasi,
+            ] : null;
+
             // Hapus berkas lama jika ada di storage private
             if ($dokumen->file_path && Storage::disk('local')->exists($dokumen->file_path)) {
                 Storage::disk('local')->delete($dokumen->file_path);
@@ -47,6 +54,18 @@ class UploadDokumenLaporanAction
                 'file_size' => $file->getSize(),
                 'status_validasi' => 'lengkap',
             ]);
+
+            app(AuditLoggerService::class)->log(
+                'dokumen.upload',
+                $dokumen,
+                $oldValues,
+                [
+                    'file_name' => $dokumen->file_name,
+                    'file_size' => $dokumen->file_size,
+                    'status_validasi' => 'lengkap',
+                ],
+                $actor
+            );
 
             return $dokumen->fresh();
         });

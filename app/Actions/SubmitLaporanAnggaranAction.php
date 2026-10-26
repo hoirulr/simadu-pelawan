@@ -9,6 +9,7 @@ use App\Models\DokumenLaporan;
 use App\Models\LaporanAnggaran;
 use App\Models\PeriodeAnggaran;
 use App\Models\User;
+use App\Services\AuditLoggerService;
 use Carbon\Carbon;
 use DomainException;
 use Illuminate\Support\Facades\DB;
@@ -49,7 +50,7 @@ class SubmitLaporanAnggaranAction
             ? round(($realisasiAnggaran / $rencanaAnggaran) * 100, 2)
             : 0.0;
 
-        return DB::transaction(function () use ($laporan, $periodeId, $rencanaAnggaran, $realisasiAnggaran, $serapan, $catatanBalai) {
+        return DB::transaction(function () use ($laporan, $periodeId, $rencanaAnggaran, $realisasiAnggaran, $serapan, $catatanBalai, $actor) {
             $isFirstSubmission = ! $laporan->exists || ! $laporan->tgl_submit_pertama;
 
             $laporan->rencana_anggaran = $rencanaAnggaran;
@@ -89,6 +90,19 @@ class SubmitLaporanAnggaranAction
                     'lengkap_pengiriman_pertama' => $allComplete,
                 ]);
             }
+
+            app(AuditLoggerService::class)->log(
+                'laporan.submit',
+                $laporan,
+                $isFirstSubmission ? null : ['status_laporan' => $laporan->getOriginal('status_laporan')],
+                [
+                    'rencana_anggaran' => $rencanaAnggaran,
+                    'realisasi_anggaran' => $realisasiAnggaran,
+                    'persentase_serapan' => $serapan,
+                    'status_laporan' => ReportStatus::Submitted->value,
+                ],
+                $actor
+            );
 
             return $laporan->fresh(['dokumenLaporan', 'balaiPenyuluh', 'periodeAnggaran']);
         });

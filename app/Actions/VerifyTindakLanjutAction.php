@@ -7,6 +7,7 @@ namespace App\Actions;
 use App\Enums\EwsStatus;
 use App\Models\TindakLanjutMonitoring;
 use App\Models\User;
+use App\Services\AuditLoggerService;
 use Carbon\Carbon;
 use DomainException;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +29,8 @@ class VerifyTindakLanjutAction
         }
 
         return DB::transaction(function () use ($ticket, $admin) {
+            $oldStatus = $ticket->status;
+
             $ticket->update([
                 'status' => 'Verified',
                 'waktu_selesai_verifikasi' => Carbon::now(),
@@ -40,6 +43,18 @@ class VerifyTindakLanjutAction
                     'status_ews' => EwsStatus::Resolved,
                 ]);
             }
+
+            app(AuditLoggerService::class)->log(
+                'tiket.verify',
+                $ticket,
+                ['status' => $oldStatus],
+                [
+                    'status' => 'Verified',
+                    'verified_by' => $admin->id,
+                    'ews_status' => $ticket->ewsAlert ? EwsStatus::Resolved->value : null,
+                ],
+                $admin
+            );
 
             return $ticket->fresh(['laporanAnggaran', 'ewsAlert', 'verifikatorUser']);
         });

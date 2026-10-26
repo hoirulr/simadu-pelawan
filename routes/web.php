@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\DocumentDownloadController;
 use App\Http\Controllers\ReportExportController;
 use App\Models\User;
+use App\Services\AuditLoggerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -23,8 +24,8 @@ Route::middleware('guest')->group(function (): void {
 // Authenticated Common Routes
 // --------------------------------------------------------------------------
 Route::middleware('auth')->group(function (): void {
-    // Logout Handler
-    Route::match(['get', 'post'], '/logout', function (Request $request) {
+    // Logout Handler (Strict POST with CSRF to prevent forced logout attacks)
+    Route::post('/logout', function (Request $request) {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -32,9 +33,11 @@ Route::middleware('auth')->group(function (): void {
         return redirect()->route('login');
     })->name('logout');
 
-    // Secure Document & Evidence Downloads
-    Route::get('/dokumen/{dokumen}/download', [DocumentDownloadController::class, 'downloadDokumenLaporan'])->name('dokumen.download');
-    Route::get('/tindak-lanjut/{ticket}/download-bukti', [DocumentDownloadController::class, 'downloadBuktiKoreksi'])->name('ticket.download-bukti');
+    // Secure Document & Evidence Downloads (Throttled)
+    Route::middleware('throttle:60,1')->group(function (): void {
+        Route::get('/dokumen/{dokumen}/download', [DocumentDownloadController::class, 'downloadDokumenLaporan'])->name('dokumen.download');
+        Route::get('/tindak-lanjut/{ticket}/download-bukti', [DocumentDownloadController::class, 'downloadBuktiKoreksi'])->name('ticket.download-bukti');
+    });
 
     // Locale Switcher (dari TailAdmin)
     Route::get('/locale/{locale}', function (string $locale) {
@@ -49,7 +52,7 @@ Route::middleware('auth')->group(function (): void {
     // Admin Dinas DP2KBP3A Routes (Restricted by Role: admin)
     // ----------------------------------------------------------------------
     Route::middleware('role:admin')->group(function (): void {
-        // Switch User Impersonation (Admin Only, Non-Production Only, POST + CSRF + Audit Log)
+        // Switch User Impersonation (Admin Only, Non-Production Only, POST + CSRF + Rate Limiting + Audit Log)
         Route::post('/switch-user/{id}', function (Request $request, int $id) {
             if (app()->isProduction()) {
                 abort(403, 'Fitur switch user dinonaktifkan di lingkungan production.');
@@ -57,6 +60,15 @@ Route::middleware('auth')->group(function (): void {
 
             $targetUser = User::findOrFail($id);
             $currentUser = Auth::user();
+
+            app(AuditLoggerService::class)->log(
+                'user.impersonate',
+                $targetUser,
+                ['actor_email' => $currentUser?->email, 'actor_role' => $currentUser?->role?->value],
+                ['target_email' => $targetUser->email, 'target_role' => $targetUser->role?->value],
+                $currentUser,
+                $request
+            );
 
             Log::info('User impersonation / switch user executed', [
                 'actor_id' => $currentUser?->id,
@@ -78,7 +90,7 @@ Route::middleware('auth')->group(function (): void {
             }
 
             return redirect()->route('balai.report');
-        })->name('switch.user');
+        })->middleware('throttle:10,1')->name('switch.user');
 
         // Dashboard Eksekutif & Peta Risiko 8 Balai
         Route::livewire('/dashboard', 'pages.dashboard.executive')->name('dashboard');

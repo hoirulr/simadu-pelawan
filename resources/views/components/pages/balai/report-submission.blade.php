@@ -221,6 +221,12 @@ new #[Layout('layouts.app')] #[Title('Input & Checklist Laporan Anggaran Balai')
         $dok = DokumenLaporan::with('laporanAnggaran')->findOrFail($dokumenId);
         Gate::authorize('upload', $dok);
 
+        $oldValues = [
+            'file_name' => $dok->file_name,
+            'file_size' => $dok->file_size,
+            'status_validasi' => $dok->status_validasi,
+        ];
+
         if ($dok->file_path && Storage::disk('local')->exists($dok->file_path)) {
             Storage::disk('local')->delete($dok->file_path);
         }
@@ -231,6 +237,14 @@ new #[Layout('layouts.app')] #[Title('Input & Checklist Laporan Anggaran Balai')
             'file_size' => null,
             'status_validasi' => 'kurang',
         ]);
+
+        app(\App\Services\AuditLoggerService::class)->log(
+            'dokumen.delete',
+            $dok,
+            $oldValues,
+            ['status_validasi' => 'kurang'],
+            Auth::user()
+        );
 
         unset($this->documentFiles[$dokumenId]);
         $this->dokumenStatuses[$dokumenId] = 'kurang';

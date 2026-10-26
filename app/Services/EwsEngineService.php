@@ -32,6 +32,15 @@ class EwsEngineService
                 ->get();
 
             foreach ($laporanList as $laporan) {
+                $existingAlert = EwsAlert::where('laporan_id', $laporan->id)
+                    ->where('kode_ews', EwsCode::EWS_1)
+                    ->first();
+
+                // Jangan buka kembali alert yang telah berstatus Resolved
+                if ($existingAlert && $existingAlert->status_ews === EwsStatus::Resolved) {
+                    continue;
+                }
+
                 $isPassed = $now->isAfter($deadline);
                 $level = $isPassed ? 'Tinggi' : 'Sedang';
                 $condition = $isPassed

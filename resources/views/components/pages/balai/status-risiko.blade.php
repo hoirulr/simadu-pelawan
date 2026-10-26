@@ -216,8 +216,9 @@ new #[Layout('layouts.app')] #[Title('Status Risiko & Peringatan Dini (EWS) Bala
                             <span class="text-sm font-semibold text-gray-400">/ 15</span>
                         </div>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                            Skor dihitung dari akumulasi 5 parameter ($P_1 + P_2 + P_3 + P_4 + P_5$)
+                            Skor dihitung dari akumulasi 5 parameter (P1 + P2 + P3 + P4 + P5)
                         </p>
+
                     </div>
 
                     <!-- Rekomendasi Resmi Sistem DP2KBP3A -->
@@ -277,8 +278,9 @@ new #[Layout('layouts.app')] #[Title('Status Risiko & Peringatan Dini (EWS) Bala
                 <div class="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800 mb-5">
                     <div>
                         <h3 class="text-base font-bold text-gray-900 dark:text-white">
-                            Rincian Penilaian 5 Parameter Risiko ($P_1 - P_5$)
+                            Rincian Penilaian 5 Parameter Risiko (P1–P5)
                         </h3>
+
                         <p class="text-xs text-gray-500 dark:text-gray-400">
                             Skala bobot: 0 (Terbaik/Sesuai), 1 (Deviasi Ringan), 2 (Perlu Pengingat), 3 (Tinggi/Kritis).
                         </p>

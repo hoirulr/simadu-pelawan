@@ -6,6 +6,7 @@ namespace App\Actions;
 
 use App\Models\TindakLanjutMonitoring;
 use App\Models\User;
+use App\Services\AuditLoggerService;
 use DomainException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +35,8 @@ class SubmitTindakLanjutAction
             throw new DomainException('Tiket telah berstatus Terverifikasi Tuntas dan tidak dapat diedit kembali.');
         }
 
-        return DB::transaction(function () use ($ticket, $catatanBalai, $fileBukti) {
+        return DB::transaction(function () use ($ticket, $catatanBalai, $fileBukti, $actor) {
+            $oldStatus = $ticket->status;
             $filePath = $ticket->file_bukti_koreksi;
 
             if ($fileBukti) {
@@ -53,6 +55,18 @@ class SubmitTindakLanjutAction
                 'file_bukti_koreksi' => $filePath,
                 'status' => 'In Progress', // Transisi status: Pending/Escalated -> In Progress
             ]);
+
+            app(AuditLoggerService::class)->log(
+                'tiket.submit',
+                $ticket,
+                ['status' => $oldStatus],
+                [
+                    'status' => 'In Progress',
+                    'catatan_balai' => $catatanBalai,
+                    'has_bukti' => ! empty($filePath),
+                ],
+                $actor
+            );
 
             return $ticket->fresh(['laporanAnggaran', 'ewsAlert']);
         });

@@ -13,8 +13,9 @@
                 {{ $currentBalai?->nama_balai }}
             </h1>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-                Pemeriksaan bukti fisik, skoring reaktif 5 parameter ($P_1\text{--}P_5$), dan aktivasi peringatan dini.
+                Pemeriksaan bukti fisik, skoring reaktif 5 parameter (P1–P5), dan aktivasi peringatan dini.
             </p>
+
         </div>
 
         <div class="flex items-center gap-3">
@@ -168,7 +169,7 @@
             </div>
         </div>
 
-        <!-- Panel Kanan (Col-span 5): Matriks Skoring 5 Parameter ($P_1\text{--}P_5$) & EWS Drawer -->
+        <!-- Panel Kanan (Col-span 5): Matriks Skoring 5 Parameter (P1–P5) & EWS Drawer -->
         <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-20">
             <!-- Live Score Summary Card -->
             <div class="rounded-2xl border p-5 transition-colors shadow-theme-xs {{ $kategoriLive === \App\Enums\RiskCategory::Rendah ? 'border-emerald-200 bg-emerald-50/50 dark:border-emerald-500/30 dark:bg-emerald-500/10' : ($kategoriLive === \App\Enums\RiskCategory::Sedang ? 'border-amber-200 bg-amber-50/50 dark:border-amber-500/30 dark:bg-amber-500/10' : 'border-rose-200 bg-rose-50/50 dark:border-rose-500/30 dark:bg-rose-500/10') }}">
@@ -191,11 +192,12 @@
                 </p>
             </div>
 
-            <!-- Matriks Radio Button 5 Parameter ($P_1 - P_5) -->
+            <!-- Matriks Radio Button 5 Parameter (P1–P5) -->
             <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900 space-y-4">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-white pb-2 border-b border-gray-100 dark:border-gray-800">
-                    Penilaian 5 Parameter Risiko ($P_1\text{--}P_5$)
+                    Penilaian 5 Parameter Risiko (P1–P5)
                 </h3>
+
 
                 <!-- P1: Ketepatan Waktu -->
                 <div class="space-y-1.5">

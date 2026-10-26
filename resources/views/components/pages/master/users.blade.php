@@ -91,10 +91,45 @@ new #[Layout('layouts.app')] #[Title('Master Akun Pengguna')] class extends Comp
 
         if ($this->editingUserId) {
             $user = User::findOrFail($this->editingUserId);
+            $oldValues = [
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role->value,
+                'balai_id' => $user->balai_id,
+            ];
+
             $user->update($data);
+
+            app(\App\Services\AuditLoggerService::class)->log(
+                'user.update',
+                $user,
+                $oldValues,
+                [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role->value,
+                    'balai_id' => $user->balai_id,
+                ],
+                Auth::user()
+            );
+
             $this->feedbackMessage = "Data pengguna {$user->name} berhasil diperbarui.";
         } else {
             $user = User::create($data);
+
+            app(\App\Services\AuditLoggerService::class)->log(
+                'user.create',
+                $user,
+                null,
+                [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role->value,
+                    'balai_id' => $user->balai_id,
+                ],
+                Auth::user()
+            );
+
             $this->feedbackMessage = "Akun pengguna baru {$user->name} berhasil dibuat.";
         }
 
@@ -110,7 +145,22 @@ new #[Layout('layouts.app')] #[Title('Master Akun Pengguna')] class extends Comp
 
         $user = User::findOrFail($id);
         $name = $user->name;
+        $oldValues = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role->value,
+            'balai_id' => $user->balai_id,
+        ];
+
         $user->delete();
+
+        app(\App\Services\AuditLoggerService::class)->log(
+            'user.delete',
+            $user,
+            $oldValues,
+            null,
+            Auth::user()
+        );
 
         $this->feedbackMessage = "Akun pengguna {$name} telah berhasil dihapus.";
     }

@@ -3,9 +3,9 @@
 **(Sistem Informasi Monitoring, Dukungan, dan Pengawasan Pelaporan Anggaran)**
 *Dinas Pengendalian Penduduk, Keluarga Berencana, Pemberdayaan Perempuan dan Perlindungan Anak (DP2KBP3A) Kabupaten Bangka*
 
-> **Tanggal Pembaruan:** 26 Oktober 2026  
-> **Status Keseluruhan Proyek:** **Remediasi P0 (P0.1 - P0.5) & P1 (P1.1 - P1.5) Selesai Penuh: Kebijakan Otorisasi Lengkap, Action Classes Terisolasi, Transisi Status Terverifikasi, Dokumentasi Skoring & Boundary Testing Tuntas, dan Generator PDF Resmi Terintegrasi**  
-> **Hasil Pengujian Otomatis:** **60 Pest Tests Passed (218 Assertions - 100% Green)**  
+> **Tanggal Pembaruan:** 27 Oktober 2026  
+> **Status Keseluruhan Proyek:** **Remediasi P0 (P0.1 - P0.5), P1 (P1.1 - P1.5), dan P2 (P2.1 - P2.5) Selesai Penuh: Audit Log Menyeluruh, Integritas Basis Data & Indexing, Idempotensi Scheduler EWS, Hardening HTTP/Session (POST-Only Logout, Rate Limiting, Security Headers), dan CI Pipeline Terverifikasi**  
+> **Hasil Pengujian Otomatis:** **70 Pest Tests Passed (268 Assertions - 100% Green)**  
 > **Basis Desain & Template:** TailAdmin (`D:\laragon\www\tailadmin-laravel`)  
 > **Arsitektur Utama:** PHP 8.4, Laravel 12, Livewire 4 (SFC & Multi-file Components), Alpine.js  
 
@@ -123,6 +123,7 @@ Dijalankan menggunakan pest: `vendor/bin/pest`
 | [`tests/Feature/RiskScoringComprehensiveTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/RiskScoringComprehensiveTest.php) | **(P1.4)** Clamping batas skor 0–3, boundary range skor 0–4 (Rendah), 5–9 (Sedang), 10–15 (Tinggi), penanganan dokumen kosong/kurang/tidak valid, perhitungan hari kalender P1, integrasi SaveRiskAssessmentAction | **Passed (4 Tests)** |
 | [`tests/Feature/ReportAndTicketStatusWorkflowTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/ReportAndTicketStatusWorkflowTest.php) | **(P1.1, P1.2, P1.3)** Otorisasi Policies lengkap, penguncian status laporan Verified, tiket Verified tidak dapat diedit balai, siklus Pending -> In Progress -> Verified, penyelesaian EWS otomatis pasca-verifikasi admin | **Passed (6 Tests)** |
 | [`tests/Feature/ReportExportPdfTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/ReportExportPdfTest.php) | **(P1.5)** Proteksi rute unduh PDF hanya admin dinas, response valid `application/pdf`, format biner standar PDF 1.4 ISO 32000-1, metadata judul & kop Pemkab Bangka | **Passed (3 Tests)** |
+| [`tests/Feature/AuditLogAndSecurityP2Test.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/AuditLogAndSecurityP2Test.php) | **(P2.1, P2.3, P2.4)** Pencatatan audit log komprehensif, security headers, POST logout CSRF, idempotensi scheduler EWS, dan rate limiting | **Passed (9 Tests)** |
 | [`tests/Feature/RiskScoringServiceTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/RiskScoringServiceTest.php) | Ambang batas kategori Rendah ($0\text{--}4$), Sedang ($5\text{--}9$), Tinggi ($10\text{--}15$) dan rekomendasi sistem | **Passed (3 Tests)** |
 | [`tests/Feature/EwsEngineServiceTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/EwsEngineServiceTest.php) | Pemindaian tenggat (EWS 1) dan evaluasi berkas tidak valid (EWS 2) | **Passed (4 Tests)** |
 | [`tests/Feature/EconomicValueCalculatorServiceTest.php`](file:///d:/laragon/www/simadu-pelawan/tests/Feature/EconomicValueCalculatorServiceTest.php) | Kalkulasi 5 indikator nilai ekonomis otomatis | **Passed (3 Tests)** |
@@ -153,4 +154,43 @@ Dijalankan menggunakan pest: `vendor/bin/pest`
 5. **P1.5 Generator PDF Resmi & Endpoint Unduhan:**
    - Generator PDF mandiri standar ISO 32000-1 tanpa dependensi pihak ketiga di [`app/Services/PdfReportGeneratorService.php`](file:///d:/laragon/www/simadu-pelawan/app/Services/PdfReportGeneratorService.php).
    - Endpoint resmi [`/monitoring/economic-evaluation/{periode}/export-pdf`](file:///d:/laragon/www/simadu-pelawan/routes/web.php) via [`ReportExportController`](file:///d:/laragon/www/simadu-pelawan/app/Http/Controllers/ReportExportController.php) dengan proteksi otorisasi admin dan header `application/pdf`.
+
+---
+
+## 6. Ringkasan Remediasi Prioritas P2 (Selesai Penuh)
+
+1. **P2.1 Audit Log Komprehensif:**
+   - **Tabel & Model Audit Log:** Dibuat tabel [`audit_logs`](file:///d:/laragon/www/simadu-pelawan/database/migrations/2026_10_27_000001_create_audit_logs_table.php) dengan field minimum: `actor_id`, `action`, `subject_type`, `subject_id`, `old_values`, `new_values`, `ip_address`, `user_agent`, dan `created_at`.
+   - **Layanan Sentral:** [`AuditLoggerService`](file:///d:/laragon/www/simadu-pelawan/app/Services/AuditLoggerService.php) mencatat record ke basis data dan log file secara terstruktur.
+   - **Cakupan Event:**
+     - Autentikasi: Login berhasil, login gagal, dan logout via Laravel Event Listeners ([`LogSuccessfulLogin`](file:///d:/laragon/www/simadu-pelawan/app/Listeners/LogSuccessfulLogin.php), [`LogFailedLogin`](file:///d:/laragon/www/simadu-pelawan/app/Listeners/LogFailedLogin.php), [`LogSuccessfulLogout`](file:///d:/laragon/www/simadu-pelawan/app/Listeners/LogSuccessfulLogout.php)).
+     - Mutasi Laporan & Berkas: Pengajuan laporan (`laporan.submit`), upload dokumen (`dokumen.upload`), dan hapus dokumen (`dokumen.delete`).
+     - Alur Kerja Tiket & Scoring: Penilaian risiko (`skoring.save`), respon tiket balai (`tiket.submit`), dan verifikasi tuntas admin (`tiket.verify`).
+     - Unduhan Dokumen Sensitif & Ekspor: Unduh SPJ (`dokumen.download`), unduh bukti perbaikan (`tiket.download_bukti`), dan ekspor rekapitulasi PDF (`report.export_pdf`).
+     - Manajemen Akun & Impersonasi: Pembuatan user (`user.create`), perubahan user/peran (`user.update`), penghapusan akun (`user.delete`), dan switch-user (`user.impersonate`).
+2. **P2.2 Database Integrity & Indexing:**
+   - Migrasi [`2026_10_27_000002_add_performance_indexes_and_integrity_constraints.php`](file:///d:/laragon/www/simadu-pelawan/database/migrations/2026_10_27_000002_add_performance_indexes_and_integrity_constraints.php):
+     - Composite unique constraint `[laporan_id, kode_ews]` pada tabel `ews_alerts` untuk mencegah duplikasi alert.
+     - Indeks performa query pada kolom: `status_laporan`, `tgl_submit_pertama`, `status_ews`, `batas_waktu_koreksi`, `kode_ews`, `status`, `waktu_mulai_temuan`, `status_validasi`, `is_active`.
+3. **P2.3 Scheduler & Idempotensi EWS:**
+   - Artisan command `php artisan simadu:scan-ews` diproteksi blok `try-catch`, error logging terstruktur, dan pemindaian berulang yang idempotent (alert berstatus `Resolved` tidak diaktifkan kembali tanpa alasan).
+   - Scheduler cron di [`routes/console.php`](file:///d:/laragon/www/simadu-pelawan/routes/console.php) dikonfigurasi dengan `->withoutOverlapping()` dan hook `->onFailure()`.
+4. **P2.4 Hardening HTTP & Session Security:**
+   - **Logout POST-Only:** Rute `/logout` diubah tegas hanya menerima method `POST` dengan verifikasi token `@csrf`. Percobaan akses via `GET` ditolak dengan status HTTP 405 Method Not Allowed untuk mencegah serangan forced-logout CSRF.
+   - **Form Logout Konsisten:** Seluruh tombol keluar di UI ([`user-dropdown.blade.php`](file:///d:/laragon/www/simadu-pelawan/resources/views/components/header/user-dropdown.blade.php)) diperbarui menggunakan form POST ber-CSRF.
+   - **Session Security:** `session()->regenerate()` dipanggil pada saat login dan switch user; `session()->invalidate()` dan `session()->regenerateToken()` dipanggil saat logout.
+   - **Rate Limiting:** Throttle perlindungan brute-force pada login (5 percobaan / 60 detik), switch-user impersonation (`throttle:10,1`), dan unduhan dokumen privat (`throttle:60,1`).
+   - **Security Headers Middleware:** [`SecurityHeadersMiddleware`](file:///d:/laragon/www/simadu-pelawan/app/Http/Middleware/SecurityHeadersMiddleware.php) otomatis menyematkan header standar keamanan:
+     - `X-Frame-Options: SAMEORIGIN` (Clickjacking protection)
+     - `X-Content-Type-Options: nosniff` (MIME-sniffing prevention)
+     - `X-XSS-Protection: 1; mode=block`
+     - `Referrer-Policy: strict-origin-when-cross-origin`
+     - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+5. **P2.5 Dependency, CI Security & Workflow:**
+   - Pipeline CI GitHub Actions terkonfigurasi di [`.github/workflows/ci.yml`](file:///d:/laragon/www/simadu-pelawan/.github/workflows/ci.yml):
+     - Environment setup PHP 8.4 dengan ekstensi lengkap.
+     - Validasi paket Composer (`composer validate --strict` lulus 100%).
+     - Standar format kode Laravel Pint (`vendor/bin/pint --test`).
+     - Pengujian otomatis Pest test suite pada database testing SQLite in-memory.
+     - Pipeline Node.js & build frontend asset (`npm run build`).
 

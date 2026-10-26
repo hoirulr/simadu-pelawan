@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DokumenLaporan;
 use App\Models\TindakLanjutMonitoring;
+use App\Services\AuditLoggerService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -23,6 +24,14 @@ class DocumentDownloadController extends Controller
             abort(404, 'Berkas dokumen tidak ditemukan di server penyimpanan.');
         }
 
+        app(AuditLoggerService::class)->log(
+            'dokumen.download',
+            $dokumen,
+            null,
+            ['file_name' => $dokumen->file_name],
+            auth()->user()
+        );
+
         $downloadName = $dokumen->file_name ?: 'dokumen-laporan.pdf';
 
         return Storage::disk('local')->download($dokumen->file_path, $downloadName);
@@ -38,6 +47,14 @@ class DocumentDownloadController extends Controller
         if (! $ticket->file_bukti_koreksi || ! Storage::disk('local')->exists($ticket->file_bukti_koreksi)) {
             abort(404, 'Berkas bukti perbaikan tidak ditemukan di server penyimpanan.');
         }
+
+        app(AuditLoggerService::class)->log(
+            'tiket.download_bukti',
+            $ticket,
+            null,
+            ['file_bukti_koreksi' => $ticket->file_bukti_koreksi],
+            auth()->user()
+        );
 
         $downloadName = basename($ticket->file_bukti_koreksi);
 

@@ -24,9 +24,9 @@ test('executive dashboard page returns 200 ok for authenticated user', function 
     $response->assertOk();
 });
 
-test('logout redirects to login page', function () {
+test('logout redirects to login page via post', function () {
     $admin = User::where('role', UserRole::Admin)->first();
-    $response = $this->actingAs($admin)->get('/logout');
+    $response = $this->actingAs($admin)->post('/logout');
     $response->assertRedirect('/');
 });
 
