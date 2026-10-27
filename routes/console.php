@@ -4,6 +4,7 @@ use App\Models\PeriodeAnggaran;
 use App\Services\EwsEngineService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
@@ -44,8 +45,9 @@ Artisan::command('simadu:scan-ews', function (EwsEngineService $ewsService) {
 })->purpose('Pindai tenggat pelaporan (EWS 1) dan eskalasi koreksi (EWS 3) SI MADU PELAWAN');
 
 Schedule::command('simadu:scan-ews')
-    ->dailyAt('08:00')
-    ->withoutOverlapping()
+    ->everyMinute()
+    ->withoutOverlapping(10)
+    ->onOneServer()
     ->onFailure(function () {
         Log::error('Schedule simadu:scan-ews failed during background execution.');
     });

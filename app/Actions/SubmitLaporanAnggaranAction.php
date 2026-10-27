@@ -12,8 +12,10 @@ use App\Models\User;
 use App\Services\AuditLoggerService;
 use Carbon\Carbon;
 use DomainException;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Validator;
 
 class SubmitLaporanAnggaranAction
 {
@@ -25,11 +27,35 @@ class SubmitLaporanAnggaranAction
     public function execute(
         int $balaiId,
         int $periodeId,
-        float $rencanaAnggaran,
-        float $realisasiAnggaran,
+        int|float|string $rencanaAnggaran,
+        int|float|string $realisasiAnggaran,
         ?string $catatanBalai,
         User $actor
     ): LaporanAnggaran {
+        $validated = Validator::make([
+            'balai_id' => $balaiId,
+            'periode_id' => $periodeId,
+            'rencana_anggaran' => $rencanaAnggaran,
+            'realisasi_anggaran' => $realisasiAnggaran,
+            'catatan_balai' => $catatanBalai,
+        ], [
+            'balai_id' => ['required', 'integer', 'exists:balai_penyuluh,id'],
+            'periode_id' => ['required', 'integer', 'exists:periode_anggaran,id'],
+            'rencana_anggaran' => ['required', 'numeric', 'min:0', 'max:999999999999.99'],
+            'realisasi_anggaran' => ['required', 'numeric', 'min:0', 'max:999999999999.99', 'lte:rencana_anggaran'],
+            'catatan_balai' => ['nullable', 'string', 'max:2000'],
+        ])->validate();
+
+        if ($actor->isOperatorBalai() && (int) $actor->balai_id !== (int) $validated['balai_id']) {
+            throw new AuthorizationException('Operator hanya dapat mengirim laporan untuk balainya sendiri.');
+        }
+
+        $balaiId = (int) $validated['balai_id'];
+        $periodeId = (int) $validated['periode_id'];
+        $rencanaAnggaran = (float) $validated['rencana_anggaran'];
+        $realisasiAnggaran = (float) $validated['realisasi_anggaran'];
+        $catatanBalai = $validated['catatan_balai'] ?? null;
+
         $laporan = LaporanAnggaran::firstOrNew([
             'balai_id' => $balaiId,
             'periode_id' => $periodeId,

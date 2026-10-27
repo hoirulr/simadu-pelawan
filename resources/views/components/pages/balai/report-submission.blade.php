@@ -140,7 +140,7 @@ new #[Layout('layouts.app')] #[Title('Input & Checklist Laporan Anggaran Balai')
             'balaiId' => ['required', 'integer', 'exists:balai_penyuluh,id'],
             'periodeId' => ['required', 'integer', 'exists:periode_anggaran,id'],
             'rencanaAnggaran' => ['required', 'numeric', 'min:0', 'max:999999999999.99'],
-            'realisasiAnggaran' => ['required', 'numeric', 'min:0', 'max:999999999999.99'],
+            'realisasiAnggaran' => ['required', 'numeric', 'min:0', 'max:999999999999.99', 'lte:rencanaAnggaran'],
             'catatanBalai' => ['nullable', 'string', 'max:2000'],
         ], [
             'balaiId.required' => 'Balai wajib dipilih.',
@@ -155,6 +155,7 @@ new #[Layout('layouts.app')] #[Title('Input & Checklist Laporan Anggaran Balai')
             'realisasiAnggaran.numeric' => 'Realisasi anggaran harus berupa angka.',
             'realisasiAnggaran.min' => 'Realisasi anggaran tidak boleh bernilai negatif.',
             'realisasiAnggaran.max' => 'Realisasi anggaran melebihi batas maksimum.',
+            'realisasiAnggaran.lte' => 'Realisasi anggaran tidak boleh melebihi rencana anggaran.',
             'catatanBalai.max' => 'Catatan balai maksimal 2000 karakter.',
         ]);
 

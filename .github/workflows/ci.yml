@@ -38,8 +38,14 @@ jobs:
       - name: Install Composer Dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
+      - name: Audit Composer Dependencies
+        run: composer audit --locked
+
       - name: Run Laravel Pint (Code Style)
         run: vendor/bin/pint --test
+
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse --no-progress
 
       - name: Prepare SQLite Database & Run Tests
         run: |
@@ -66,6 +72,9 @@ jobs:
 
       - name: Install NPM Dependencies
         run: npm ci
+
+      - name: Audit NPM Dependencies
+        run: npm audit --audit-level=high
 
       - name: Build Frontend Assets
         run: npm run build

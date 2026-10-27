@@ -12,7 +12,9 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class SubmitTindakLanjutAction
 {
@@ -27,6 +29,20 @@ class SubmitTindakLanjutAction
         ?UploadedFile $fileBukti,
         User $actor
     ): TindakLanjutMonitoring {
+        Validator::make([
+            'catatan_balai' => $catatanBalai,
+            'file_bukti' => $fileBukti,
+        ], [
+            'catatan_balai' => ['required', 'string', 'min:5', 'max:1000'],
+            'file_bukti' => ['nullable', 'file', 'mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png', 'extensions:pdf,doc,docx,xls,xlsx,jpg,jpeg,png', 'max:10240'],
+        ])->validate();
+
+        if ($fileBukti && (! $fileBukti->isValid() || ! is_int($fileBukti->getSize()) || $fileBukti->getSize() < 1)) {
+            throw ValidationException::withMessages([
+                'file_bukti' => 'Berkas bukti harus valid dan tidak boleh kosong.',
+            ]);
+        }
+
         $ticket->loadMissing('laporanAnggaran');
         Gate::forUser($actor)->authorize('update', $ticket);
 

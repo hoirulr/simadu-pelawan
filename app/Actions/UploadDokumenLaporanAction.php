@@ -13,7 +13,9 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class UploadDokumenLaporanAction
 {
@@ -24,6 +26,16 @@ class UploadDokumenLaporanAction
      */
     public function execute(DokumenLaporan $dokumen, UploadedFile $file, User $actor): DokumenLaporan
     {
+        if (! $file->isValid() || ! is_int($file->getSize()) || $file->getSize() < 1) {
+            throw ValidationException::withMessages([
+                'file' => 'Berkas harus valid dan tidak boleh kosong.',
+            ]);
+        }
+
+        Validator::make(['file' => $file], [
+            'file' => ['required', 'file', 'mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png', 'extensions:pdf,doc,docx,xls,xlsx,jpg,jpeg,png', 'max:10240'],
+        ])->validate();
+
         $dokumen->loadMissing('laporanAnggaran');
         Gate::forUser($actor)->authorize('upload', $dokumen);
 
