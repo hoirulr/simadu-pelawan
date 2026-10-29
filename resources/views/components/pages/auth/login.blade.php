@@ -180,7 +180,7 @@ new #[Layout('layouts.guest')] #[Title('Masuk ke Sistem')] class extends Compone
                                 </svg>
                             </span>
                             <input id="email" type="email" wire:model="email" autofocus
-                                   placeholder="nama@simadupelawan.go.id"
+                                   placeholder="username"
                                    class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white transition">
                         </div>
                         @error('email') <span class="text-xs text-rose-500 mt-1 block">{{ $message }}</span> @enderror
@@ -200,7 +200,7 @@ new #[Layout('layouts.guest')] #[Title('Masuk ke Sistem')] class extends Compone
                                 </svg>
                             </span>
                             <input id="password" :type="show ? 'text' : 'password'" wire:model="password"
-                                   placeholder="••••••••"
+                                   placeholder="password"
                                    class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white transition font-mono">
                             <button type="button" @click="show = !show"
                                     class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">

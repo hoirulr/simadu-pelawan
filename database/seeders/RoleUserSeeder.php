@@ -24,7 +24,7 @@ class RoleUserSeeder extends Seeder
             ['email' => 'admin@simadupelawan.go.id'],
             [
                 'name' => 'Admin Dinas DP2KBP3A',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('0b1H1JDIaTLmI6ts4h8c'),
                 'role' => UserRole::Admin,
                 'balai_id' => null,
             ]
@@ -47,7 +47,7 @@ class RoleUserSeeder extends Seeder
                 ['email' => $u['email']],
                 [
                     'name' => $u['name'],
-                    'password' => Hash::make('password'),
+                    'password' => Hash::make('0b1H1JDIaTLmI6ts4h8c'),
                     'role' => UserRole::OperatorBalai,
                     'balai_id' => $balaiId,
                 ]
