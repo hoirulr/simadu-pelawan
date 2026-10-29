@@ -46,7 +46,7 @@ test('authenticated operator balai visiting login is redirected to balai laporan
 test('admin can log in with valid credentials and redirect to dashboard', function (): void {
     Livewire::test('pages.auth.login')
         ->set('email', 'admin@simadupelawan.go.id')
-        ->set('password', 'password')
+        ->set('password', '0b1H1JDIaTLmI6ts4h8c')
         ->call('authenticate')
         ->assertRedirect('/dashboard');
 
@@ -56,7 +56,7 @@ test('admin can log in with valid credentials and redirect to dashboard', functi
 test('operator balai can log in with valid credentials and redirect to balai laporan', function (): void {
     Livewire::test('pages.auth.login')
         ->set('email', 'operator.sungailiat@simadupelawan.go.id')
-        ->set('password', 'password')
+        ->set('password', '0b1H1JDIaTLmI6ts4h8c')
         ->call('authenticate')
         ->assertRedirect('/balai/laporan');
 

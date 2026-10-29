@@ -26,7 +26,7 @@ new #[Layout('layouts.guest')] #[Title('Masuk ke Sistem')] class extends Compone
         return null;
     }
 
-    public function fillCredentials(string $email, string $password = 'password'): void
+    public function fillCredentials(string $email, string $password = '0b1H1JDIaTLmI6ts4h8c'): void
     {
         $this->resetValidation();
         $this->errorMessage = null;
@@ -34,7 +34,7 @@ new #[Layout('layouts.guest')] #[Title('Masuk ke Sistem')] class extends Compone
         $this->password = $password;
     }
 
-    public function quickLogin(string $email, string $password = 'password'): mixed
+    public function quickLogin(string $email, string $password = '0b1H1JDIaTLmI6ts4h8c'): mixed
     {
         if (app()->isProduction()) {
             abort(403, 'Akses masuk demonstrasi dinonaktifkan pada lingkungan produksi.');
@@ -237,79 +237,6 @@ new #[Layout('layouts.guest')] #[Title('Masuk ke Sistem')] class extends Compone
                         </button>
                     </div>
                 </form>
-
-                @if(!app()->isProduction())
-                <!-- Quick Demo Login Presets -->
-                <div class="mt-7 pt-6 border-t border-gray-100 dark:border-gray-800">
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-[11px] uppercase tracking-wider font-bold text-gray-400">
-                            Akun Demonstrasi / Pengujian:
-                        </span>
-                        <span class="text-[10px] text-brand-600 dark:text-brand-400 font-mono font-semibold">
-                            Klik untuk masuk instan
-                        </span>
-                    </div>
-
-                    <div class="space-y-2">
-                        <!-- Admin Dinas -->
-                        <button type="button" wire:click="quickLogin('admin@simadupelawan.go.id', 'password')"
-                                class="w-full p-2.5 rounded-xl border border-purple-200 bg-purple-50/50 hover:bg-purple-100/70 dark:border-purple-900/40 dark:bg-purple-950/20 dark:hover:bg-purple-950/40 text-left transition flex items-center justify-between group">
-                            <div class="flex items-center gap-2.5">
-                                <span class="size-7 rounded-lg bg-purple-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
-                                    AD
-                                </span>
-                                <div>
-                                    <span class="block text-xs font-bold text-purple-900 dark:text-purple-200">
-                                        Admin Dinas DP2KBP3A
-                                    </span>
-                                    <span class="block text-[11px] text-purple-700/80 dark:text-purple-400 font-mono">
-                                        admin@simadupelawan.go.id
-                                    </span>
-                                </div>
-                            </div>
-                            <span class="text-xs font-semibold text-purple-600 group-hover:translate-x-0.5 transition">&rarr;</span>
-                        </button>
-
-                        <!-- Operator Balai Sungailiat -->
-                        <button type="button" wire:click="quickLogin('operator.sungailiat@simadupelawan.go.id', 'password')"
-                                class="w-full p-2.5 rounded-xl border border-brand-200 bg-brand-50/50 hover:bg-brand-100/70 dark:border-brand-900/40 dark:bg-brand-950/20 dark:hover:bg-brand-950/40 text-left transition flex items-center justify-between group">
-                            <div class="flex items-center gap-2.5">
-                                <span class="size-7 rounded-lg bg-brand-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
-                                    KB
-                                </span>
-                                <div>
-                                    <span class="block text-xs font-bold text-brand-900 dark:text-brand-200">
-                                        Operator Balai KB Sungailiat
-                                    </span>
-                                    <span class="block text-[11px] text-brand-700/80 dark:text-brand-400 font-mono">
-                                        operator.sungailiat@simadupelawan.go.id
-                                    </span>
-                                </div>
-                            </div>
-                            <span class="text-xs font-semibold text-brand-600 group-hover:translate-x-0.5 transition">&rarr;</span>
-                        </button>
-
-                        <!-- Operator Balai Merawang -->
-                        <button type="button" wire:click="quickLogin('operator.merawang@simadupelawan.go.id', 'password')"
-                                class="w-full p-2.5 rounded-xl border border-gray-200 bg-gray-50/70 hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-800/40 dark:hover:bg-gray-800/80 text-left transition flex items-center justify-between group">
-                            <div class="flex items-center gap-2.5">
-                                <span class="size-7 rounded-lg bg-gray-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
-                                    KB
-                                </span>
-                                <div>
-                                    <span class="block text-xs font-bold text-gray-800 dark:text-gray-200">
-                                        Operator Balai KB Merawang
-                                    </span>
-                                    <span class="block text-[11px] text-gray-500 dark:text-gray-400 font-mono">
-                                        operator.merawang@simadupelawan.go.id
-                                    </span>
-                                </div>
-                            </div>
-                            <span class="text-xs font-semibold text-gray-600 dark:text-gray-300 group-hover:translate-x-0.5 transition">&rarr;</span>
-                        </button>
-                    </div>
-                </div>
-                @endif
             </div>
         </div>
     </main>
