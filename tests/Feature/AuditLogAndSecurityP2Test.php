@@ -42,6 +42,7 @@ test('successful and failed login events are recorded in audit logs', function (
         ->and($failedLog->new_values['attempted_email'])->toBe($admin->email);
 
     // 2. Successful login
+    $admin->update(['password' => Hash::make('password')]);
     Livewire::test('pages.auth.login')
         ->set('email', $admin->email)
         ->set('password', 'password')

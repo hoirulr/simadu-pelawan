@@ -7,6 +7,7 @@
 /storage/*.key
 /storage/pail
 /vendor
+/docs
 .env
 .env.backup
 .env.production
@@ -38,4 +39,11 @@ yarn-error.log
 /opencode.json
 /opencode.jsonc
 powershell.cmd
+docx_helpers.py
+generate_simelati_guidebook.py
+generate_simelati_role_guidebooks.py
+Panduan_Penggunaan_Aplikasi_SI-MELATI.docx
+docx_helpers.cpython-314.pyc
+capture_simelati_role_guidebooks.py
+capture_simelati_screenshots.cjs
 
