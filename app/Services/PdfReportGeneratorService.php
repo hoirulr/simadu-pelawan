@@ -10,7 +10,7 @@ use Carbon\Carbon;
 class PdfReportGeneratorService
 {
     /**
-     * Hasilkan dokumen binary PDF 1.4 resmi untuk Rekapitulasi Nilai Ekonomis SIMADU PELAWAN.
+     * Hasilkan dokumen binary PDF 1.4 resmi untuk Rekapitulasi Nilai Ekonomis SI MELATI.
      */
     public function generateEconomicReportPdf(PeriodeAnggaran $periode, array $economicStats, $balaiList): string
     {
@@ -21,7 +21,7 @@ class PdfReportGeneratorService
         $lines[] = ['font' => 'F2', 'size' => 14, 'x' => 50, 'y' => 772, 'text' => 'DINAS PENGENDALIAN PENDUDUK, KB, PEMBERDAYAAN PEREMPUAN & PERLINDUNGAN ANAK'];
         $lines[] = ['font' => 'F1', 'size' => 9, 'x' => 50, 'y' => 758, 'text' => 'Jalan Ahmad Yani, Sungailiat, Kabupaten Bangka, Kepulauan Bangka Belitung (33215)'];
         $lines[] = ['font' => 'F2', 'size' => 11, 'x' => 50, 'y' => 735, 'text' => "REKAPITULASI EVALUASI NILAI EKONOMIS & AKUNTABILITAS ANGGARAN — TAHUN {$periode->tahun} ({$periode->tahap})"];
-        $lines[] = ['font' => 'F1', 'size' => 8, 'x' => 50, 'y' => 722, 'text' => 'Dicetak pada: '.Carbon::now()->translatedFormat('d F Y H:i:s').' WIB | Sistem: SIMADU PELAWAN'];
+        $lines[] = ['font' => 'F1', 'size' => 8, 'x' => 50, 'y' => 722, 'text' => 'Dicetak pada: '.Carbon::now()->translatedFormat('d F Y H:i:s').' WIB | Sistem: SI MELATI'];
 
         // Garis Pembatas
         // Draw decorative lines
@@ -138,7 +138,7 @@ class PdfReportGeneratorService
         $objects[6] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
 
         // 7: Metadata Info
-        $objects[7] = "<< /Title ({$title}) /Author (DP2KBP3A Kabupaten Bangka) /Creator (SIMADU PELAWAN) /CreationDate (D:{$now}+07'00') >>";
+        $objects[7] = "<< /Title ({$title}) /Author (DP2KBP3A Kabupaten Bangka) /Creator (SI MELATI) /CreationDate (D:{$now}+07'00') >>";
 
         $pdf = "%PDF-1.4\n";
         $offsets = [];

@@ -388,7 +388,7 @@ new #[Layout('layouts.app')] #[Title('Evaluasi Nilai Ekonomis & Kinerja Inovasi'
             <div class="text-center w-64">
                 <p>Sungailiat, {{ Carbon::now()->translatedFormat('d F Y') }}</p>
                 <p class="font-bold uppercase mt-1">Verifikator Anggaran & Inovasi</p>
-                <p class="uppercase">SIMADU PELAWAN</p>
+                <p class="uppercase">SI MELATI</p>
                 <div class="h-20"></div>
                 <p class="font-bold underline uppercase">{{ Auth::user()->name ?? 'Admin Dinas DP2KBP3A' }}</p>
                 <p class="font-mono text-[11px]">Pengelola Data Anggaran</p>

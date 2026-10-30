@@ -423,7 +423,7 @@ new #[Layout('layouts.app')] #[Title('Master Akun Pengguna')] class extends Comp
                             {{ $editingUserId ? 'Ubah Data Pengguna' : 'Tambah Pengguna Baru' }}
                         </h3>
                         <p class="text-xs text-gray-500 dark:text-gray-400">
-                            Konfigurasi akun dan hak akses SIMADU PELAWAN.
+                            Konfigurasi akun dan hak akses SI MELATI.
                         </p>
                     </div>
                     <button wire:click="$set('showModal', false)" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-2xl font-light">

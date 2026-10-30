@@ -64,8 +64,8 @@
                 </svg>
             </div>
             <div class="hidden [.sidebar-expanded_&]:block">
-                <span class="block text-base font-extrabold tracking-tight text-gray-900 dark:text-white leading-none">SI MADU</span>
-                <span class="block text-xs font-semibold text-brand-600 dark:text-brand-400 tracking-wider">PELAWAN</span>
+                <span class="block text-base font-extrabold tracking-tight text-gray-900 dark:text-white leading-none">SI</span>
+                <span class="block text-xs font-semibold text-brand-600 dark:text-brand-400 tracking-wider">MELATI</span>
             </div>
         </a>
     </div>

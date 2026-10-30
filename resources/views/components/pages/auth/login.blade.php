@@ -108,7 +108,7 @@ new #[Layout('layouts.guest')] #[Title('Masuk ke Sistem')] class extends Compone
             </div>
             <div>
                 <span class="block text-lg font-black tracking-tight text-gray-900 dark:text-white leading-none">
-                    SI MADU <span class="text-brand-600 dark:text-brand-400">PELAWAN</span>
+                    SI <span class="text-brand-600 dark:text-brand-400">MELATI</span>
                 </span>
                 <span class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 tracking-wider">
                     DP2KBP3A KABUPATEN BANGKA
@@ -149,7 +149,7 @@ new #[Layout('layouts.guest')] #[Title('Masuk ke Sistem')] class extends Compone
                         Masuk ke Sistem
                     </h1>
                     <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
-                        Sistem Informasi Monitoring, Dukungan, dan Pengawasan Pelaporan Anggaran Balai KB
+                        Sistem Informasi Monitoring, Evaluasi, Pelaporan Anggaran Terintegrasi
                     </p>
                 </div>
 

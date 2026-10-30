@@ -15,7 +15,7 @@ test('main page / returns 200 ok and displays login portal for guests', function
     $response = $this->get('/');
     $response->assertOk();
     $response->assertSee('Masuk ke Sistem');
-    $response->assertSee('SI MADU');
+    $response->assertSee('SI MELATI');
 });
 
 test('executive dashboard page returns 200 ok for authenticated user', function () {
