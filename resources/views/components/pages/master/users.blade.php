@@ -442,7 +442,7 @@ new #[Layout('layouts.app')] #[Title('Master Akun Pengguna')] class extends Comp
 
                     <div>
                         <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Alamat Email</label>
-                        <input type="email" wire:model="email" placeholder="nama@simadupelawan.go.id"
+                        <input type="email" wire:model="email" placeholder="nama@simelatibangka.go.id"
                                class="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white font-mono">
                         @error('email') <span class="text-xs text-rose-500">{{ $message }}</span> @enderror
                     </div>

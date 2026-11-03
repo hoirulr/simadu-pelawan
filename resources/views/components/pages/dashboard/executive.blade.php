@@ -27,7 +27,7 @@ new #[Layout('layouts.app')] #[Title('Dashboard Eksekutif & Peta Risiko')] class
 
     public function with(): array
     {
-        $periodes = PeriodeAnggaran::orderBy('tahun', 'desc')->orderBy('tahap', 'asc')->get();
+        $periodes = PeriodeAnggaran::orderBy('tahun', 'desc')->orderBy('bulan', 'desc')->get();
         $selectedPeriode = PeriodeAnggaran::find($this->selectedPeriodeId) ?? $periodes->first();
 
         // 8 Balai Penyuluh KB beserta laporan periode terpilih
@@ -141,7 +141,7 @@ new #[Layout('layouts.app')] #[Title('Dashboard Eksekutif & Peta Risiko')] class
                 Dashboard Eksekutif & Peta Risiko Anggaran
             </h1>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-                Monitoring real-time serapan Tahap I ke Tahap II, Early Warning System (EWS), dan evaluasi Nilai Ekonomis.
+                Monitoring real-time serapan bulanan anggaran DAK BOKB, Early Warning System (EWS), dan evaluasi Nilai Ekonomis.
             </p>
         </div>
 
@@ -152,7 +152,7 @@ new #[Layout('layouts.app')] #[Title('Dashboard Eksekutif & Peta Risiko')] class
                     class="text-sm font-semibold text-gray-800 dark:text-gray-200 bg-transparent border-none focus:ring-0 py-1 pr-8 cursor-pointer">
                     @foreach($periodes as $p)
                         <option value="{{ $p->id }}" class="dark:bg-gray-800">
-                            {{ $p->tahun }} - {{ $p->tahap }} (Target {{ $p->target_realisasi_persen }}%)
+                            {{ $p->namaPeriode() }} (Target {{ $p->target_realisasi_persen }}%)
                         </option>
                     @endforeach
                 </select>
@@ -403,7 +403,7 @@ new #[Layout('layouts.app')] #[Title('Dashboard Eksekutif & Peta Risiko')] class
                         Perbandingan Pagu vs Realisasi 8 Balai (Juta Rp)
                     </h3>
                     <p class="text-xs text-gray-500 dark:text-gray-400">
-                        Capaian serapan terhadap target kelancaran pencairan Tahap II ({{ $targetSerapan }}%)
+                        Capaian serapan terhadap target periode aktif ({{ $targetSerapan }}%)
                     </p>
                 </div>
             </div>

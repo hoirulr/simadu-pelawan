@@ -32,7 +32,7 @@
                 <label for="periodePick" class="text-xs font-medium text-gray-500 dark:text-gray-400 pl-2">Periode:</label>
                 <select id="periodePick" wire:model.live="selectedPeriodeId" class="text-sm font-semibold text-gray-800 dark:text-gray-200 bg-transparent border-none focus:ring-0 py-1 pr-6 cursor-pointer">
                     @foreach($periodes as $p)
-                        <option value="{{ $p->id }}" class="dark:bg-gray-800">{{ $p->tahun }} - {{ $p->tahap }}</option>
+                        <option value="{{ $p->id }}" class="dark:bg-gray-800">{{ $p->namaPeriode() }}</option>
                     @endforeach
                 </select>
             </div>

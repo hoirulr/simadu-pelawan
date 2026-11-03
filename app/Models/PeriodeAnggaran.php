@@ -41,8 +41,35 @@ class PeriodeAnggaran extends Model
         return $this->hasMany(LaporanAnggaran::class, 'periode_id');
     }
 
+    public const BULAN_NAMES = [
+        1 => 'Januari',
+        2 => 'Februari',
+        3 => 'Maret',
+        4 => 'April',
+        5 => 'Mei',
+        6 => 'Juni',
+        7 => 'Juli',
+        8 => 'Agustus',
+        9 => 'September',
+        10 => 'Oktober',
+        11 => 'November',
+        12 => 'Desember',
+    ];
+
+    public function namaBulan(): string
+    {
+        return self::BULAN_NAMES[(int) $this->bulan] ?? "Bulan {$this->bulan}";
+    }
+
     public function namaPeriode(): string
     {
-        return "{$this->tahun} - {$this->tahap} (Bulan {$this->bulan})";
+        $namaBulan = $this->namaBulan();
+
+        // Jika tahap sudah berupa nama bulan atau default 'Bulanan'
+        if ($this->tahap === 'Bulanan' || $this->tahap === $namaBulan) {
+            return "{$namaBulan} {$this->tahun}";
+        }
+
+        return "{$namaBulan} {$this->tahun} ({$this->tahap})";
     }
 }

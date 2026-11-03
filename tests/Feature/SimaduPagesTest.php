@@ -98,7 +98,7 @@ test('master periode anggaran page returns 200 ok', function () {
     $response = $this->actingAs($admin)->get('/master/periode');
     $response->assertOk();
     $response->assertSee('Master Periode Anggaran');
-    $response->assertSee('Tahap I');
+    $response->assertSee('Januari');
 });
 
 test('master akun pengguna page returns 200 ok with users list', function () {

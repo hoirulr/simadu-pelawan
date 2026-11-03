@@ -45,8 +45,8 @@ test('authenticated operator balai visiting login is redirected to balai laporan
 
 test('admin can log in with valid credentials and redirect to dashboard', function (): void {
     Livewire::test('pages.auth.login')
-        ->set('email', 'admin@simadupelawan.go.id')
-        ->set('password', '0b1H1JDIaTLmI6ts4h8c')
+        ->set('email', 'admin@simelatibangka.go.id')
+        ->set('password', 'Bangka*1901*')
         ->call('authenticate')
         ->assertRedirect('/dashboard');
 
@@ -55,8 +55,8 @@ test('admin can log in with valid credentials and redirect to dashboard', functi
 
 test('operator balai can log in with valid credentials and redirect to balai laporan', function (): void {
     Livewire::test('pages.auth.login')
-        ->set('email', 'operator.sungailiat@simadupelawan.go.id')
-        ->set('password', '0b1H1JDIaTLmI6ts4h8c')
+        ->set('email', 'operator.sungailiat@simelatibangka.go.id')
+        ->set('password', 'Bangka*1901*')
         ->call('authenticate')
         ->assertRedirect('/balai/laporan');
 
@@ -65,7 +65,7 @@ test('operator balai can log in with valid credentials and redirect to balai lap
 
 test('login fails with invalid credentials and displays error message', function (): void {
     Livewire::test('pages.auth.login')
-        ->set('email', 'admin@simadupelawan.go.id')
+        ->set('email', 'admin@simelatibangka.go.id')
         ->set('password', 'wrong-password')
         ->call('authenticate')
         ->assertSee('Alamat email atau kata sandi yang Anda masukkan salah.');

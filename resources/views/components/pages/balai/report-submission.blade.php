@@ -97,11 +97,12 @@ new #[Layout('layouts.app')] #[Title('Input & Checklist Laporan Anggaran Balai')
             if ($laporan->dokumenLaporan->isEmpty()) {
                 $periode = PeriodeAnggaran::find($this->periodeId);
                 $dokWajib = $periode?->dokumen_wajib_json ?? [
-                    'Laporan Realisasi Anggaran (LRA)',
-                    'Surat Pertanggungjawaban Mutlak (SPTJM)',
-                    'Buku Kas Umum & Kuitansi',
+                    'Dokumen Pelaksanaan Anggaran (DPA)',
+                    'Surat Keputusan (SK)',
+                    'Kwitansi',
                     'Dokumentasi Kegiatan',
-                    'Rencana Kebutuhan Tahap II',
+                    'Rincian Biaya Kegiatan',
+                    'Kartu Kendali',
                 ];
                 foreach ($dokWajib as $namaDok) {
                     DokumenLaporan::create([
@@ -177,6 +178,8 @@ new #[Layout('layouts.app')] #[Title('Input & Checklist Laporan Anggaran Balai')
             $this->successMessage = 'Laporan anggaran berhasil disimpan dan dikirim ke Admin Dinas untuk verifikasi!';
         } catch (\DomainException $e) {
             $this->errorMessage = $e->getMessage();
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            $this->errorMessage = 'Akses Ditolak: Anda tidak dapat mengubah laporan yang telah berstatus Terverifikasi Tuntas.';
         }
     }
 
@@ -213,6 +216,8 @@ new #[Layout('layouts.app')] #[Title('Input & Checklist Laporan Anggaran Balai')
             $this->successMessage = 'Dokumen "'.$dok->nama_dokumen_wajib.'" berhasil diunggah.';
         } catch (\DomainException $e) {
             $this->errorMessage = $e->getMessage();
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            $this->errorMessage = 'Akses Ditolak: Dokumen tidak dapat diunggah atau diganti karena laporan telah berstatus Terverifikasi Tuntas. Silakan hubungi Admin Dinas untuk pembukaan status revisi jika perlu perbaikan.';
         }
     }
 
@@ -220,36 +225,41 @@ new #[Layout('layouts.app')] #[Title('Input & Checklist Laporan Anggaran Balai')
     public function deleteDokumen(int $dokumenId): void
     {
         $dok = DokumenLaporan::with('laporanAnggaran')->findOrFail($dokumenId);
-        Gate::authorize('upload', $dok);
 
-        $oldValues = [
-            'file_name' => $dok->file_name,
-            'file_size' => $dok->file_size,
-            'status_validasi' => $dok->status_validasi,
-        ];
+        try {
+            Gate::authorize('upload', $dok);
 
-        if ($dok->file_path && Storage::disk('local')->exists($dok->file_path)) {
-            Storage::disk('local')->delete($dok->file_path);
+            $oldValues = [
+                'file_name' => $dok->file_name,
+                'file_size' => $dok->file_size,
+                'status_validasi' => $dok->status_validasi,
+            ];
+
+            if ($dok->file_path && Storage::disk('local')->exists($dok->file_path)) {
+                Storage::disk('local')->delete($dok->file_path);
+            }
+
+            $dok->update([
+                'file_path' => null,
+                'file_name' => null,
+                'file_size' => null,
+                'status_validasi' => 'kurang',
+            ]);
+
+            app(\App\Services\AuditLoggerService::class)->log(
+                'dokumen.delete',
+                $dok,
+                $oldValues,
+                ['status_validasi' => 'kurang'],
+                Auth::user()
+            );
+
+            unset($this->documentFiles[$dokumenId]);
+            $this->dokumenStatuses[$dokumenId] = 'kurang';
+            $this->successMessage = 'Dokumen "'.$dok->nama_dokumen_wajib.'" berhasil dihapus.';
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            $this->errorMessage = 'Akses Ditolak: Dokumen tidak dapat dihapus karena laporan telah berstatus Terverifikasi Tuntas.';
         }
-
-        $dok->update([
-            'file_path' => null,
-            'file_name' => null,
-            'file_size' => null,
-            'status_validasi' => 'kurang',
-        ]);
-
-        app(\App\Services\AuditLoggerService::class)->log(
-            'dokumen.delete',
-            $dok,
-            $oldValues,
-            ['status_validasi' => 'kurang'],
-            Auth::user()
-        );
-
-        unset($this->documentFiles[$dokumenId]);
-        $this->dokumenStatuses[$dokumenId] = 'kurang';
-        $this->successMessage = 'Dokumen "'.$dok->nama_dokumen_wajib.'" berhasil dihapus.';
     }
 
     public function with(): array
@@ -277,6 +287,7 @@ new #[Layout('layouts.app')] #[Title('Input & Checklist Laporan Anggaran Balai')
             : 0.0;
 
         $activeAlerts = $laporan ? $laporan->ewsAlerts->whereIn('status_ews', [EwsStatus::Open, EwsStatus::Escalated]) : collect();
+        $isReportVerified = $laporan && $laporan->status_laporan === ReportStatus::Verified && (! $user || ! $user->isAdmin());
 
         return [
             'balaiList' => $balaiList,
@@ -286,6 +297,7 @@ new #[Layout('layouts.app')] #[Title('Input & Checklist Laporan Anggaran Balai')
             'laporan' => $laporan,
             'persentaseSerapan' => $persentaseSerapan,
             'activeAlerts' => $activeAlerts,
+            'isReportVerified' => $isReportVerified,
         ];
     }
 };
@@ -328,7 +340,7 @@ new #[Layout('layouts.app')] #[Title('Input & Checklist Laporan Anggaran Balai')
                 <label for="periodeSelector" class="text-xs font-medium text-gray-500 dark:text-gray-400 pl-2">Periode:</label>
                 <select id="periodeSelector" wire:model.live="periodeId" class="text-sm font-semibold text-gray-800 dark:text-gray-200 bg-transparent border-none focus:ring-0 py-1 pr-6 cursor-pointer">
                     @foreach($periodes as $p)
-                        <option value="{{ $p->id }}" class="dark:bg-gray-800">{{ $p->tahun }} - {{ $p->tahap }}</option>
+                        <option value="{{ $p->id }}" class="dark:bg-gray-800">{{ $p->namaPeriode() }}</option>
                     @endforeach
                 </select>
             </div>
@@ -441,7 +453,7 @@ new #[Layout('layouts.app')] #[Title('Input & Checklist Laporan Anggaran Balai')
                     <!-- Visual Progress Serapan Livewire 4 Reactive -->
                     <div class="p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800">
                         <div class="flex items-center justify-between text-xs mb-1.5 font-medium">
-                            <span class="text-gray-600 dark:text-gray-400">Progres Serapan Tahap I:</span>
+                            <span class="text-gray-600 dark:text-gray-400">Progres Serapan Anggaran:</span>
                             <span class="font-mono font-bold text-gray-900 dark:text-white">{{ $persentaseSerapan }}%</span>
                         </div>
                         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
@@ -474,15 +486,26 @@ new #[Layout('layouts.app')] #[Title('Input & Checklist Laporan Anggaran Balai')
                         <span>Terdapat perubahan angka yang belum disimpan.</span>
                     </div>
 
-                    <!-- Submit Button with data-loading -->
-                    <button type="submit"
-                            class="w-full py-3 px-4 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm shadow-theme-xs flex items-center justify-center gap-2 transition data-loading:opacity-60 data-loading:pointer-events-none cursor-pointer">
-                        <span>Kirim & Perbarui Laporan</span>
-                        <svg class="hidden data-loading:inline-block size-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                        </svg>
-                    </button>
+                    @if($isReportVerified)
+                        <button type="button"
+                                disabled
+                                class="w-full py-3 px-4 rounded-xl bg-gray-200 dark:bg-gray-800 text-gray-500 font-semibold text-sm shadow-theme-xs flex items-center justify-center gap-2 cursor-not-allowed">
+                            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            <span>Laporan Terverifikasi (Terkunci)</span>
+                        </button>
+                    @else
+                        <!-- Submit Button with data-loading -->
+                        <button type="submit"
+                                class="w-full py-3 px-4 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm shadow-theme-xs flex items-center justify-center gap-2 transition data-loading:opacity-60 data-loading:pointer-events-none cursor-pointer">
+                            <span>Kirim & Perbarui Laporan</span>
+                            <svg class="hidden data-loading:inline-block size-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                        </button>
+                    @endif
                 </form>
             </div>
         </div>
@@ -500,6 +523,15 @@ new #[Layout('layouts.app')] #[Title('Input & Checklist Laporan Anggaran Balai')
                         </p>
                     </div>
                 </div>
+
+                @if($isReportVerified)
+                    <div class="mb-4 p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 dark:bg-blue-500/10 dark:border-blue-500/30 dark:text-blue-300 flex items-center gap-2.5 text-xs">
+                        <svg class="size-4 shrink-0 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        <span>Laporan periode ini telah <strong>Terverifikasi Tuntas</strong>. Pengunggahan dan penggantian berkas dikunci secara otomatis. Hubungi Admin Dinas jika memerlukan pembukaan status revisi.</span>
+                    </div>
+                @endif
 
                 <!-- Dokumen List Table -->
                 <div class="space-y-3">
@@ -561,32 +593,41 @@ new #[Layout('layouts.app')] #[Title('Input & Checklist Laporan Anggaran Balai')
                                 </span>
 
                                 <div class="flex items-center gap-1.5">
-                                    <label class="cursor-pointer px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-gray-700 border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 transition flex items-center gap-1">
-                                        <svg class="size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-                                        </svg>
-                                        <span>{{ $dok->file_path ? 'Ganti' : 'Pilih File' }}</span>
-                                        <input type="file" wire:model="documentFiles.{{ $dok->id }}" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
-                                    </label>
-
-                                    @if(isset($documentFiles[$dok->id]))
-                                        <button type="button" wire:click="uploadDokumen({{ $dok->id }})"
-                                                wire:loading.attr="disabled"
-                                                class="px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-500 hover:bg-brand-600 text-white shadow-sm flex items-center gap-1 transition cursor-pointer">
-                                            <span wire:loading.remove wire:target="uploadDokumen({{ $dok->id }})">Simpan</span>
-                                            <span wire:loading wire:target="uploadDokumen({{ $dok->id }})">...</span>
-                                        </button>
-                                    @endif
-
-                                    @if($dok->file_path)
-                                        <button type="button" wire:click="deleteDokumen({{ $dok->id }})"
-                                                wire:confirm="Apakah Anda yakin ingin menghapus berkas dokumen ini?"
-                                                class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
-                                                title="Hapus Berkas Dokumen">
-                                            <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    @if($isReportVerified)
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 cursor-not-allowed" title="Laporan sudah Terverifikasi Tuntas sehingga berkas terkunci">
+                                            <svg class="size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                                             </svg>
-                                        </button>
+                                            <span>Terkunci</span>
+                                        </span>
+                                    @else
+                                        <label class="cursor-pointer px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-gray-700 border border-gray-200 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 transition flex items-center gap-1">
+                                            <svg class="size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                                            </svg>
+                                            <span>{{ $dok->file_path ? 'Ganti' : 'Pilih File' }}</span>
+                                            <input type="file" wire:model="documentFiles.{{ $dok->id }}" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                                        </label>
+
+                                        @if(isset($documentFiles[$dok->id]))
+                                            <button type="button" wire:click="uploadDokumen({{ $dok->id }})"
+                                                    wire:loading.attr="disabled"
+                                                    class="px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-500 hover:bg-brand-600 text-white shadow-sm flex items-center gap-1 transition cursor-pointer">
+                                                <span wire:loading.remove wire:target="uploadDokumen({{ $dok->id }})">Simpan</span>
+                                                <span wire:loading wire:target="uploadDokumen({{ $dok->id }})">...</span>
+                                            </button>
+                                        @endif
+
+                                        @if($dok->file_path)
+                                            <button type="button" wire:click="deleteDokumen({{ $dok->id }})"
+                                                    wire:confirm="Apakah Anda yakin ingin menghapus berkas dokumen ini?"
+                                                    class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
+                                                    title="Hapus Berkas Dokumen">
+                                                <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                </svg>
+                                            </button>
+                                        @endif
                                     @endif
                                 </div>
                             </div>

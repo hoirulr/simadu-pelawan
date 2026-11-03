@@ -71,7 +71,7 @@ new #[Layout('layouts.app')] #[Title('Evaluasi Nilai Ekonomis & Kinerja Inovasi'
                 <label for="periodeFilterEco" class="text-xs font-medium text-gray-500 dark:text-gray-400 pl-2">Periode:</label>
                 <select id="periodeFilterEco" wire:model.live="selectedPeriodeId" class="text-sm font-semibold text-gray-800 dark:text-gray-200 bg-transparent border-none focus:ring-0 py-1 pr-6 cursor-pointer">
                     @foreach($periodes as $p)
-                        <option value="{{ $p->id }}" class="dark:bg-gray-800">{{ $p->tahun }} - {{ $p->tahap }}</option>
+                        <option value="{{ $p->id }}" class="dark:bg-gray-800">{{ $p->namaPeriode() }}</option>
                     @endforeach
                 </select>
             </div>
@@ -107,7 +107,7 @@ new #[Layout('layouts.app')] #[Title('Evaluasi Nilai Ekonomis & Kinerja Inovasi'
                 Laporan Evaluasi Indikator Nilai Ekonomis & Akuntabilitas Anggaran Balai KB
             </h3>
             <p class="text-xs text-gray-600 font-mono">
-                Periode: {{ $selectedPeriode?->tahun }} - {{ $selectedPeriode?->tahap }} | Dicetak: {{ Carbon::now()->format('d F Y H:i') }} WIB
+                Periode: {{ $selectedPeriode?->namaPeriode() }} | Dicetak: {{ Carbon::now()->format('d F Y H:i') }} WIB
             </p>
         </div>
     </div>
@@ -228,10 +228,10 @@ new #[Layout('layouts.app')] #[Title('Evaluasi Nilai Ekonomis & Kinerja Inovasi'
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
             <div>
                 <h3 class="text-base font-bold text-gray-900 dark:text-white">
-                    Evaluasi Serapan Anggaran Bertahap (Tahap I &rarr; Tahap II)
+                    Evaluasi Serapan Anggaran Periode Bulanan
                 </h3>
                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                    Target Tahap I: Minimal 50.00% untuk persetujuan pencairan Tahap II. Target Akhir Tahun: Minimal 95.00%.
+                    Pemantauan target serapan kumulatif dan kepatuhan tenggat pelaporan bulanan DAK BOKB.
                 </p>
             </div>
             <div class="flex items-center gap-2">
@@ -243,8 +243,8 @@ new #[Layout('layouts.app')] #[Title('Evaluasi Nilai Ekonomis & Kinerja Inovasi'
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-5">
             <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
-                <span class="text-xs font-semibold text-gray-500">Tahap Periode Aktif</span>
-                <div class="text-xl font-bold text-gray-900 dark:text-white mt-1">{{ $selectedPeriode?->tahap }}</div>
+                <span class="text-xs font-semibold text-gray-500">Bulan Periode Aktif</span>
+                <div class="text-xl font-bold text-gray-900 dark:text-white mt-1">{{ $selectedPeriode?->namaPeriode() }}</div>
                 <div class="text-xs text-gray-400 mt-1">Bulan Ke-{{ $selectedPeriode?->bulan }} Tahun {{ $selectedPeriode?->tahun }}</div>
             </div>
 

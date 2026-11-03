@@ -110,7 +110,7 @@
         <!-- User Info -->
         <div class="pb-3 border-b border-gray-100 dark:border-gray-800">
             <span class="block font-semibold text-gray-800 text-theme-sm dark:text-gray-200">{{ auth()->user()->name ?? 'Admin Dinas DP2KBP3A' }}</span>
-            <span class="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400 font-mono">{{ auth()->user()->email ?? 'admin@simadupelawan.go.id' }}</span>
+            <span class="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400 font-mono">{{ auth()->user()->email ?? 'admin@simelatibangka.go.id' }}</span>
             @if(auth()->user()?->balaiPenyuluh)
                 <span class="mt-1 inline-block text-[11px] px-2 py-0.5 rounded bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
                     {{ auth()->user()->balaiPenyuluh->nama_balai }}

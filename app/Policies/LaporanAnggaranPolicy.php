@@ -27,7 +27,7 @@ class LaporanAnggaranPolicy
             return true;
         }
 
-        return $user->isOperatorBalai() && $user->balai_id === $laporan->balai_id;
+        return $user->isOperatorBalai() && (int) $user->balai_id === (int) $laporan->balai_id;
     }
 
     /**
@@ -48,7 +48,7 @@ class LaporanAnggaranPolicy
             return true;
         }
 
-        if (! $user->isOperatorBalai() || $user->balai_id !== $laporan->balai_id) {
+        if (! $user->isOperatorBalai() || (int) $user->balai_id !== (int) $laporan->balai_id) {
             return false;
         }
 

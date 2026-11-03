@@ -13,41 +13,36 @@ class PeriodeAnggaranSeeder extends Seeder
     public function run(): void
     {
         $dokumenWajibStandar = [
-            'Laporan Realisasi Anggaran (LRA) Per Kegiatan',
-            'Surat Pernyataan Tanggung Jawab Mutlak (SPTJM)',
-            'Buku Kas Umum (BKU) & Rekapitulasi Kuitansi Sah',
-            'Dokumentasi Bukti Fisik / Foto Pelaksanaan Kegiatan',
-            'Rencana Kebutuhan Operasional & Penyerapan Lanjutan',
+            'Dokumen Pelaksanaan Anggaran (DPA)',
+            'Surat Keputusan (SK)',
+            'Kwitansi',
+            'Dokumentasi Kegiatan',
+            'Rincian Biaya Kegiatan',
+            'Kartu Kendali',
         ];
 
-        // Periode Tahap I Tahun Berjalan (Aktif)
-        PeriodeAnggaran::updateOrCreate(
-            ['id' => 1],
-            [
-                'tahun' => 2026,
-                'tahap' => 'Tahap I',
-                'bulan' => 6,
-                'pagu_anggaran' => 1250000000.00, // Rp 1,25 Miliar total pagu Tahap I (8 Balai)
-                'target_realisasi_persen' => 50.00,
-                'tgl_tenggat_lapor' => Carbon::now()->addDays(5),
-                'dokumen_wajib_json' => $dokumenWajibStandar,
-                'is_active' => true,
-            ]
-        );
+        $tahun = (int) now()->year;
+        $bulanSekarang = (int) now()->month;
 
-        // Periode Tahap II Tahun Berjalan
-        PeriodeAnggaran::updateOrCreate(
-            ['id' => 2],
-            [
-                'tahun' => 2026,
-                'tahap' => 'Tahap II',
-                'bulan' => 12,
-                'pagu_anggaran' => 1500000000.00, // Rp 1,5 Miliar total pagu Tahap II
-                'target_realisasi_persen' => 95.00,
-                'tgl_tenggat_lapor' => Carbon::now()->addMonths(6),
-                'dokumen_wajib_json' => $dokumenWajibStandar,
-                'is_active' => false,
-            ]
-        );
+        // Buat 12 Periode Bulanan untuk tahun berjalan
+        for ($b = 1; $b <= 12; $b++) {
+            $namaBulan = PeriodeAnggaran::BULAN_NAMES[$b] ?? "Bulan {$b}";
+            // Tenggat lapor aktif fleksibel di masa depan (misal: 10 hari ke depan)
+            $tenggatLapor = Carbon::now()->addDays(10 + ($b * 5));
+
+            PeriodeAnggaran::updateOrCreate(
+                ['id' => $b],
+                [
+                    'tahun' => $tahun,
+                    'tahap' => $namaBulan,
+                    'bulan' => $b,
+                    'pagu_anggaran' => 200000000.00, // Rp 200 Juta pagu bulanan (8 Balai)
+                    'target_realisasi_persen' => round(($b / 12) * 100, 2),
+                    'tgl_tenggat_lapor' => $tenggatLapor,
+                    'dokumen_wajib_json' => $dokumenWajibStandar,
+                    'is_active' => ($b === $bulanSekarang),
+                ]
+            );
+        }
     }
 }

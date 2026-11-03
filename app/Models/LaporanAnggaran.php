@@ -32,6 +32,8 @@ class LaporanAnggaran extends Model
     protected function casts(): array
     {
         return [
+            'balai_id' => 'integer',
+            'periode_id' => 'integer',
             'rencana_anggaran' => 'decimal:2',
             'realisasi_anggaran' => 'decimal:2',
             'persentase_serapan' => 'decimal:2',

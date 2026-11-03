@@ -26,7 +26,7 @@ new #[Layout('layouts.guest')] #[Title('Masuk ke Sistem')] class extends Compone
         return null;
     }
 
-    public function fillCredentials(string $email, string $password = '0b1H1JDIaTLmI6ts4h8c'): void
+    public function fillCredentials(string $email, string $password = 'Bangka*1901*'): void
     {
         $this->resetValidation();
         $this->errorMessage = null;
@@ -34,7 +34,7 @@ new #[Layout('layouts.guest')] #[Title('Masuk ke Sistem')] class extends Compone
         $this->password = $password;
     }
 
-    public function quickLogin(string $email, string $password = '0b1H1JDIaTLmI6ts4h8c'): mixed
+    public function quickLogin(string $email, string $password = 'Bangka*1901*'): mixed
     {
         if (app()->isProduction()) {
             abort(403, 'Akses masuk demonstrasi dinonaktifkan pada lingkungan produksi.');

@@ -31,11 +31,12 @@ class LaporanDummySeeder extends Seeder
         $adminId = $admin?->id;
 
         $dokumenWajib = $periode->dokumen_wajib_json ?? [
-            'Laporan Realisasi Anggaran (LRA)',
-            'Surat Pertanggungjawaban Mutlak (SPTJM)',
-            'Buku Kas Umum & Kuitansi',
+            'Dokumen Pelaksanaan Anggaran (DPA)',
+            'Surat Keputusan (SK)',
+            'Kwitansi',
             'Dokumentasi Kegiatan',
-            'Rencana Kebutuhan Tahap II',
+            'Rincian Biaya Kegiatan',
+            'Kartu Kendali',
         ];
 
         $balaiData = [
@@ -107,7 +108,7 @@ class LaporanDummySeeder extends Seeder
                     'total_skor' => $totalSkor,
                     'kategori_risiko' => $kategori,
                     'rekomendasi_sistem' => match ($kategori) {
-                        RiskCategory::Rendah => 'Kondisi terkendali. Siap untuk proses rekomendasi pencairan Tahap II.',
+                        RiskCategory::Rendah => 'Kondisi terkendali. Siap untuk proses rekomendasi kelancaran anggaran.',
                         RiskCategory::Sedang => 'Perlu pemantauan berkala dan perbaikan dokumen pendukung minor.',
                         RiskCategory::Tinggi => 'Perlu pendampingan intensif dari tim dinas untuk percepatan realisasi dan akuntabilitas dokumen.',
                     },

@@ -28,7 +28,7 @@ class SkoringRisikoPolicy
 
         $laporan = $skoring->laporanAnggaran;
 
-        return $laporan && $user->isOperatorBalai() && $user->balai_id === $laporan->balai_id;
+        return $laporan && $user->isOperatorBalai() && (int) $user->balai_id === (int) $laporan->balai_id;
     }
 
     /**

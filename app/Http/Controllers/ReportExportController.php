@@ -34,7 +34,8 @@ class ReportExportController extends Controller
         ])->orderBy('id', 'asc')->get();
 
         $pdfContent = $pdfService->generateEconomicReportPdf($periode, $economicStats, $balaiList);
-        $filename = "Rekapitulasi_Nilai_Ekonomis_{$periode->tahun}_{$periode->tahap}.pdf";
+        $cleanPeriode = str_replace(' ', '_', $periode->namaPeriode());
+        $filename = "Rekapitulasi_Nilai_Ekonomis_{$cleanPeriode}.pdf";
 
         app(AuditLoggerService::class)->log(
             'report.export_pdf',

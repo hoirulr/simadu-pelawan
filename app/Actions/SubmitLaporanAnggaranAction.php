@@ -90,11 +90,12 @@ class SubmitLaporanAnggaranAction
             if ($laporan->dokumenLaporan()->count() === 0) {
                 $periode = PeriodeAnggaran::find($periodeId);
                 $dokWajib = $periode?->dokumen_wajib_json ?? [
-                    'Laporan Realisasi Anggaran (LRA)',
-                    'Surat Pertanggungjawaban Mutlak (SPTJM)',
-                    'Buku Kas Umum & Kuitansi',
+                    'Dokumen Pelaksanaan Anggaran (DPA)',
+                    'Surat Keputusan (SK)',
+                    'Kwitansi',
                     'Dokumentasi Kegiatan',
-                    'Rencana Kebutuhan Tahap II',
+                    'Rincian Biaya Kegiatan',
+                    'Kartu Kendali',
                 ];
 
                 foreach ($dokWajib as $namaDok) {

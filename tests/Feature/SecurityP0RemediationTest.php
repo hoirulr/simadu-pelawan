@@ -32,7 +32,7 @@ test('guest cannot access switch user endpoint', function (): void {
 });
 
 test('operator balai cannot access switch user endpoint via GET or POST and receives 403', function (): void {
-    $operator = User::where('email', 'operator.sungailiat@simadupelawan.go.id')->first();
+    $operator = User::where('email', 'operator.sungailiat@simelatibangka.go.id')->first();
     $admin = User::where('role', UserRole::Admin)->first();
 
     // GET should be 404 or 405
@@ -51,7 +51,7 @@ test('admin can switch user in non-production via POST and action is logged', fu
     Log::spy();
 
     $admin = User::where('role', UserRole::Admin)->first();
-    $targetOperator = User::where('email', 'operator.sungailiat@simadupelawan.go.id')->first();
+    $targetOperator = User::where('email', 'operator.sungailiat@simelatibangka.go.id')->first();
 
     $response = $this->actingAs($admin)->post("/switch-user/{$targetOperator->id}");
 
@@ -67,7 +67,7 @@ test('admin can switch user in non-production via POST and action is logged', fu
 
 test('switch user is blocked in production environment', function (): void {
     $admin = User::where('role', UserRole::Admin)->first();
-    $targetOperator = User::where('email', 'operator.sungailiat@simadupelawan.go.id')->first();
+    $targetOperator = User::where('email', 'operator.sungailiat@simelatibangka.go.id')->first();
 
     // Simulate production environment
     app()->detectEnvironment(fn () => 'production');
@@ -85,7 +85,7 @@ test('switch user is blocked in production environment', function (): void {
 // =============================================================================
 
 test('negative and non-numeric budget inputs are rejected by server validation', function (): void {
-    $operator = User::where('email', 'operator.sungailiat@simadupelawan.go.id')->first();
+    $operator = User::where('email', 'operator.sungailiat@simelatibangka.go.id')->first();
 
     Livewire::actingAs($operator)
         ->test('pages.balai.report-submission')
@@ -99,7 +99,7 @@ test('negative and non-numeric budget inputs are rejected by server validation',
 });
 
 test('invalid periode_id is rejected by server validation', function (): void {
-    $operator = User::where('email', 'operator.sungailiat@simadupelawan.go.id')->first();
+    $operator = User::where('email', 'operator.sungailiat@simelatibangka.go.id')->first();
 
     Livewire::actingAs($operator)
         ->test('pages.balai.report-submission')
@@ -112,7 +112,7 @@ test('invalid periode_id is rejected by server validation', function (): void {
 
 test('operator balai cannot submit report for another balai', function (): void {
     // Sungailiat operator has balai_id = 1
-    $operatorSungailiat = User::where('email', 'operator.sungailiat@simadupelawan.go.id')->first();
+    $operatorSungailiat = User::where('email', 'operator.sungailiat@simelatibangka.go.id')->first();
 
     // Attempting to submit for Merawang (balai_id = 2)
     Livewire::actingAs($operatorSungailiat)
@@ -133,7 +133,7 @@ test('operator balai cannot submit report for another balai', function (): void 
 });
 
 test('first submission timestamp tgl_submit_pertama does not change on resubmission', function (): void {
-    $operator = User::where('email', 'operator.sungailiat@simadupelawan.go.id')->first();
+    $operator = User::where('email', 'operator.sungailiat@simelatibangka.go.id')->first();
     $periode = PeriodeAnggaran::where('is_active', true)->first();
 
     $initialTime = Carbon::now()->subDays(3);
@@ -161,7 +161,7 @@ test('first submission timestamp tgl_submit_pertama does not change on resubmiss
 });
 
 test('operator cannot view or respond to tickets belonging to another balai', function (): void {
-    $operatorSungailiat = User::where('email', 'operator.sungailiat@simadupelawan.go.id')->first();
+    $operatorSungailiat = User::where('email', 'operator.sungailiat@simelatibangka.go.id')->first();
     $periode = PeriodeAnggaran::where('is_active', true)->first();
 
     // Create Laporan and Ticket for Balai Merawang (balai_id = 2)
@@ -203,7 +203,7 @@ test('quick login demo presets are disabled in production environment', function
     app()->detectEnvironment(fn () => 'production');
 
     Livewire::test('pages.auth.login')
-        ->call('quickLogin', 'admin@simadupelawan.go.id', 'password')
+        ->call('quickLogin', 'admin@simelatibangka.go.id', 'password')
         ->assertForbidden();
 
     expect(Auth::check())->toBeFalse();

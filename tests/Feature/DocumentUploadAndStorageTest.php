@@ -22,7 +22,7 @@ beforeEach(function (): void {
 });
 
 test('file upload rejects disallowed file types like php or exe', function (): void {
-    $operator = User::where('email', 'operator.sungailiat@simadupelawan.go.id')->first();
+    $operator = User::where('email', 'operator.sungailiat@simelatibangka.go.id')->first();
     $periode = PeriodeAnggaran::where('is_active', true)->first();
 
     $laporan = LaporanAnggaran::create([
@@ -50,7 +50,7 @@ test('file upload rejects disallowed file types like php or exe', function (): v
 });
 
 test('file upload rejects files exceeding 10MB limit', function (): void {
-    $operator = User::where('email', 'operator.sungailiat@simadupelawan.go.id')->first();
+    $operator = User::where('email', 'operator.sungailiat@simelatibangka.go.id')->first();
     $periode = PeriodeAnggaran::where('is_active', true)->first();
 
     $laporan = LaporanAnggaran::create([
@@ -78,7 +78,7 @@ test('file upload rejects files exceeding 10MB limit', function (): void {
 });
 
 test('valid document is uploaded to private storage and metadata is recorded', function (): void {
-    $operator = User::where('email', 'operator.sungailiat@simadupelawan.go.id')->first();
+    $operator = User::where('email', 'operator.sungailiat@simelatibangka.go.id')->first();
     $periode = PeriodeAnggaran::where('is_active', true)->first();
 
     $laporan = LaporanAnggaran::create([
@@ -115,7 +115,7 @@ test('valid document is uploaded to private storage and metadata is recorded', f
 });
 
 test('re-uploading document replaces the old file in private storage', function (): void {
-    $operator = User::where('email', 'operator.sungailiat@simadupelawan.go.id')->first();
+    $operator = User::where('email', 'operator.sungailiat@simelatibangka.go.id')->first();
     $periode = PeriodeAnggaran::where('is_active', true)->first();
 
     $laporan = LaporanAnggaran::create([
@@ -159,8 +159,8 @@ test('re-uploading document replaces the old file in private storage', function 
 });
 
 test('secure document download enforces balai authorization and rejects cross-balai download', function (): void {
-    $operatorSungailiat = User::where('email', 'operator.sungailiat@simadupelawan.go.id')->first();
-    $operatorMerawang = User::where('email', 'operator.merawang@simadupelawan.go.id')->first();
+    $operatorSungailiat = User::where('email', 'operator.sungailiat@simelatibangka.go.id')->first();
+    $operatorMerawang = User::where('email', 'operator.merawang@simelatibangka.go.id')->first();
     $admin = User::where('role', UserRole::Admin)->first();
     $periode = PeriodeAnggaran::where('is_active', true)->first();
 
@@ -204,8 +204,8 @@ test('secure document download enforces balai authorization and rejects cross-ba
 });
 
 test('ticket correction evidence upload and secure download authorization', function (): void {
-    $operatorSungailiat = User::where('email', 'operator.sungailiat@simadupelawan.go.id')->first();
-    $operatorMerawang = User::where('email', 'operator.merawang@simadupelawan.go.id')->first();
+    $operatorSungailiat = User::where('email', 'operator.sungailiat@simelatibangka.go.id')->first();
+    $operatorMerawang = User::where('email', 'operator.merawang@simelatibangka.go.id')->first();
     $admin = User::where('role', UserRole::Admin)->first();
     $periode = PeriodeAnggaran::where('is_active', true)->first();
 

@@ -14,10 +14,10 @@ new #[Layout('layouts.app')] #[Title('Master Periode Anggaran')] class extends C
     public ?int $editingId = null;
 
     public int $tahun = 2026;
-    public string $tahap = 'Tahap I';
-    public int $bulan = 6;
-    public float $pagu_anggaran = 1250000000.00;
-    public float $target_realisasi_persen = 50.00;
+    public string $tahap = 'Januari';
+    public int $bulan = 1;
+    public float $pagu_anggaran = 200000000.00;
+    public float $target_realisasi_persen = 10.00;
     public string $tgl_tenggat_lapor = '';
     public bool $is_active = false;
 
@@ -31,11 +31,12 @@ new #[Layout('layouts.app')] #[Title('Master Periode Anggaran')] class extends C
     {
         $this->tgl_tenggat_lapor = Carbon::now()->addDays(14)->format('Y-m-d\TH:i');
         $this->dokumen_wajib = [
-            'Laporan Realisasi Anggaran (LRA) Per Kegiatan',
-            'Surat Pernyataan Tanggung Jawab Mutlak (SPTJM)',
-            'Buku Kas Umum (BKU) & Rekapitulasi Kuitansi Sah',
-            'Dokumentasi Bukti Fisik / Foto Pelaksanaan Kegiatan',
-            'Rencana Kebutuhan Operasional & Penyerapan Lanjutan',
+            'Dokumen Pelaksanaan Anggaran (DPA)',
+            'Surat Keputusan (SK)',
+            'Kwitansi',
+            'Dokumentasi Kegiatan',
+            'Rincian Biaya Kegiatan',
+            'Kartu Kendali',
         ];
     }
 
@@ -44,21 +45,31 @@ new #[Layout('layouts.app')] #[Title('Master Periode Anggaran')] class extends C
         $this->resetValidation();
         $this->editingId = null;
         $this->tahun = (int) date('Y');
-        $this->tahap = 'Tahap I';
-        $this->bulan = 6;
-        $this->pagu_anggaran = 1250000000.00;
-        $this->target_realisasi_persen = 50.00;
-        $this->tgl_tenggat_lapor = Carbon::now()->addDays(14)->format('Y-m-d\TH:i');
+        $this->bulan = (int) date('n');
+        $this->tahap = PeriodeAnggaran::BULAN_NAMES[$this->bulan] ?? 'Januari';
+        $this->pagu_anggaran = 200000000.00;
+        $this->target_realisasi_persen = round(($this->bulan / 12) * 100, 2);
+        $this->tgl_tenggat_lapor = Carbon::create($this->tahun, $this->bulan, 10, 23, 59)->addMonth()->format('Y-m-d\TH:i');
         $this->is_active = false;
         $this->dokumen_wajib = [
-            'Laporan Realisasi Anggaran (LRA) Per Kegiatan',
-            'Surat Pernyataan Tanggung Jawab Mutlak (SPTJM)',
-            'Buku Kas Umum (BKU) & Rekapitulasi Kuitansi Sah',
-            'Dokumentasi Bukti Fisik / Foto Pelaksanaan Kegiatan',
-            'Rencana Kebutuhan Operasional & Penyerapan Lanjutan',
+            'Dokumen Pelaksanaan Anggaran (DPA)',
+            'Surat Keputusan (SK)',
+            'Kwitansi',
+            'Dokumentasi Kegiatan',
+            'Rincian Biaya Kegiatan',
+            'Kartu Kendali',
         ];
         $this->newDokumenName = '';
         $this->showModal = true;
+    }
+
+    public function updatedBulan(): void
+    {
+        if (isset(PeriodeAnggaran::BULAN_NAMES[$this->bulan])) {
+            $this->tahap = PeriodeAnggaran::BULAN_NAMES[$this->bulan];
+            $this->target_realisasi_persen = round(($this->bulan / 12) * 100, 2);
+            $this->tgl_tenggat_lapor = Carbon::create($this->tahun, $this->bulan, 10, 23, 59)->addMonth()->format('Y-m-d\TH:i');
+        }
     }
 
     public function openEditModal(int $id): void
@@ -109,7 +120,7 @@ new #[Layout('layouts.app')] #[Title('Master Periode Anggaran')] class extends C
     {
         $this->validate([
             'tahun' => 'required|integer|min:2020|max:2035',
-            'tahap' => 'required|in:Tahap I,Tahap II',
+            'tahap' => 'required|string|max:50',
             'bulan' => 'required|integer|min:1|max:12',
             'pagu_anggaran' => 'required|numeric|min:0',
             'target_realisasi_persen' => 'required|numeric|min:0|max:100',
@@ -159,7 +170,7 @@ new #[Layout('layouts.app')] #[Title('Master Periode Anggaran')] class extends C
     {
         $periodes = PeriodeAnggaran::withCount('laporanAnggaran')
             ->orderBy('tahun', 'desc')
-            ->orderBy('tahap', 'asc')
+            ->orderBy('bulan', 'desc')
             ->get();
 
         return [
@@ -184,7 +195,7 @@ new #[Layout('layouts.app')] #[Title('Master Periode Anggaran')] class extends C
                 Master Periode Anggaran & Dokumen Wajib
             </h1>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-                Kelola tahapan pencairan (Tahap I & Tahap II), pagu total, target serapan minimal, dan template berkas wajib pelaporan.
+                Kelola periode anggaran bulanan, pagu alokasi balai, target serapan, dan template berkas wajib pelaporan.
             </p>
         </div>
 
@@ -246,12 +257,12 @@ new #[Layout('layouts.app')] #[Title('Master Periode Anggaran')] class extends C
                             <td class="py-4 px-4">
                                 <div class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                     <span>{{ $p->tahun }}</span>
-                                    <span class="px-2 py-0.5 text-xs font-semibold rounded {{ $p->tahap === 'Tahap I' ? 'bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300' : 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300' }}">
-                                        {{ $p->tahap }}
+                                    <span class="px-2 py-0.5 text-xs font-semibold rounded bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300">
+                                        {{ $p->namaPeriode() }}
                                     </span>
                                 </div>
                                 <div class="text-xs text-gray-400 mt-0.5">
-                                    Bulan Ke-{{ $p->bulan }} • {{ $p->laporan_anggaran_count }} Laporan Masuk
+                                    Bulan Ke-{{ $p->bulan }} ({{ $p->namaBulan() }}) • {{ $p->laporan_anggaran_count }} Laporan Masuk
                                 </div>
                             </td>
                             <td class="py-4 px-4 font-mono font-semibold text-gray-800 dark:text-gray-200">
@@ -265,7 +276,7 @@ new #[Layout('layouts.app')] #[Title('Master Periode Anggaran')] class extends C
                                     {{ $p->target_realisasi_persen }}%
                                 </div>
                                 <div class="text-[11px] text-gray-400">
-                                    {{ $p->tahap === 'Tahap I' ? 'Syarat Tahap II' : 'Target Akhir Tahun' }}
+                                    Target Kumulatif
                                 </div>
                             </td>
                             <td class="py-4 px-4 text-xs font-mono">
@@ -363,18 +374,19 @@ new #[Layout('layouts.app')] #[Title('Master Periode Anggaran')] class extends C
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Tahap Pencairan</label>
-                            <select wire:model="tahap" class="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                                <option value="Tahap I">Tahap I (Januari - Juni)</option>
-                                <option value="Tahap II">Tahap II (Juli - Desember)</option>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Bulan Anggaran</label>
+                            <select wire:model.live="bulan" class="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                                @foreach(\App\Models\PeriodeAnggaran::BULAN_NAMES as $num => $nama)
+                                    <option value="{{ $num }}">{{ $num }}. {{ $nama }}</option>
+                                @endforeach
                             </select>
-                            @error('tahap') <span class="text-xs text-rose-500">{{ $message }}</span> @enderror
+                            @error('bulan') <span class="text-xs text-rose-500">{{ $message }}</span> @enderror
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Bulan Acuan (1-12)</label>
-                            <input type="number" wire:model="bulan" min="1" max="12" class="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white font-mono">
-                            @error('bulan') <span class="text-xs text-rose-500">{{ $message }}</span> @enderror
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Label Periode / Keterangan</label>
+                            <input type="text" wire:model="tahap" class="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                            @error('tahap') <span class="text-xs text-rose-500">{{ $message }}</span> @enderror
                         </div>
 
                         <div>

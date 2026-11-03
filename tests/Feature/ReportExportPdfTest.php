@@ -51,9 +51,10 @@ test('admin dinas dapat mendownload berkas PDF resmi dengan content-type applica
 
     $response->assertStatus(200);
     $response->assertHeader('Content-Type', 'application/pdf');
+    $cleanPeriode = str_replace(' ', '_', $this->periode->namaPeriode());
     $response->assertHeader(
         'Content-Disposition',
-        'attachment; filename="Rekapitulasi_Nilai_Ekonomis_2026_Tahap I.pdf"'
+        'attachment; filename="Rekapitulasi_Nilai_Ekonomis_'.$cleanPeriode.'.pdf"'
     );
 
     $content = $response->getContent();

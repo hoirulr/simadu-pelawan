@@ -24,6 +24,14 @@ class DokumenLaporan extends Model
         'catatan_dokumen',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'laporan_id' => 'integer',
+            'file_size' => 'integer',
+        ];
+    }
+
     public function laporanAnggaran(): BelongsTo
     {
         return $this->belongsTo(LaporanAnggaran::class, 'laporan_id');

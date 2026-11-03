@@ -97,7 +97,7 @@ class RiskScoringService
     public function getSystemRecommendation(RiskCategory $category, int $totalScore): string
     {
         return match ($category) {
-            RiskCategory::Rendah => "Kondisi Balai terkendali (Skor {$totalScore}/15). Lakukan pemantauan berkala dan pertahankan ketepatan pelaporan untuk kelancaran pencairan Tahap II.",
+            RiskCategory::Rendah => "Kondisi Balai terkendali (Skor {$totalScore}/15). Lakukan pemantauan berkala dan pertahankan ketepatan pelaporan untuk kelancaran akuntabilitas anggaran.",
             RiskCategory::Sedang => "Terdapat catatan kekurangan/deviasi yang memerlukan perhatian (Skor {$totalScore}/15). Diterbitkan tiket peringatan dini (EWS) dan instruksi perbaikan dokumen/klarifikasi.",
             RiskCategory::Tinggi => "Kondisi berisiko tinggi menghambat akuntabilitas dan pencairan anggaran (Skor {$totalScore}/15). Diperlukan intervensi prioritas, koordinasi langsung, dan tindak lanjut segera oleh Admin Dinas DP2KBP3A.",
         };

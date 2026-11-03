@@ -234,14 +234,14 @@ test('user management creates, updates, and deletes are recorded in audit logs',
     Livewire::actingAs($admin)
         ->test('pages.master.users')
         ->set('name', 'Operator Baru Belinyu')
-        ->set('email', 'operator.baru@simadupelawan.go.id')
+        ->set('email', 'operator.baru@simelatibangka.go.id')
         ->set('role', 'operator_balai')
         ->set('balai_id', $balai->id)
         ->set('password', 'password123')
         ->set('password_confirmation', 'password123')
         ->call('saveUser');
 
-    $createdUser = User::where('email', 'operator.baru@simadupelawan.go.id')->first();
+    $createdUser = User::where('email', 'operator.baru@simelatibangka.go.id')->first();
     expect($createdUser)->not->toBeNull();
 
     $createAudit = AuditLog::where('action', 'user.create')
@@ -255,7 +255,7 @@ test('user management creates, updates, and deletes are recorded in audit logs',
         ->test('pages.master.users')
         ->set('editingUserId', $createdUser->id)
         ->set('name', 'Operator Belinyu Terupdate')
-        ->set('email', 'operator.baru@simadupelawan.go.id')
+        ->set('email', 'operator.baru@simelatibangka.go.id')
         ->set('role', 'operator_balai')
         ->set('balai_id', $balai->id)
         ->call('saveUser');
