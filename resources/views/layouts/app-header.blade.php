@@ -49,9 +49,11 @@
             </button>
 
             <!-- Logo (mobile only) -->
-            <a href="/" class="xl:hidden">
-                <img class="dark:hidden" src="/images/logo/logo.svg" alt="Logo" />
-                <img class="hidden dark:block" src="/images/logo/logo-dark.svg" alt="Logo" />
+            <a href="/" class="xl:hidden flex items-center gap-2">
+                <div class="size-8 rounded-lg bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center p-1 shadow-xs">
+                    <img src="{{ asset('images/logo/melati-icon.svg') }}" alt="SI MELATI" class="size-6" />
+                </div>
+                <span class="font-black text-sm text-gray-900 dark:text-white leading-none">SI <span class="text-brand-600 dark:text-brand-400">MELATI</span></span>
             </a>
 
             <!-- Application Menu Toggle (mobile only) -->

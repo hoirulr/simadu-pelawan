@@ -58,10 +58,8 @@
     <!-- Logo Section -->
     <div class="pt-6 pb-5 flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 mb-4" :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ? 'justify-center' : 'justify-between'">
         <a href="/dashboard" class="flex items-center gap-3">
-            <div class="size-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20 shrink-0">
-                <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                </svg>
+            <div class="size-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center p-1.5 shadow-md shadow-brand-500/20 shrink-0">
+                <img src="{{ asset('images/logo/melati-icon.svg') }}" alt="SI MELATI" class="size-7 drop-shadow-sm" />
             </div>
             <div class="hidden [.sidebar-expanded_&]:block">
                 <span class="block text-base font-extrabold tracking-tight text-gray-900 dark:text-white leading-none">SI</span>

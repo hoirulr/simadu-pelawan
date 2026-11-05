@@ -1,0 +1,19 @@
+{
+    "name": "SI MELATI - DP2KBP3A Kabupaten Bangka",
+    "short_name": "SI MELATI",
+    "icons": [
+        {
+            "src": "/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#5B21B6",
+    "background_color": "#ECE8FD",
+    "display": "standalone"
+}

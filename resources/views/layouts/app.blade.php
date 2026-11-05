@@ -8,6 +8,15 @@
 
     <title>{{ $title ?? 'SI MELATI' }} - DP2KBP3A Kab. Bangka</title>
 
+    <!-- Favicon & App Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}?v=2">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}?v=2">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=2">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=2">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}?v=2">
+    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+    <meta name="theme-color" content="#5B21B6">
+
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -144,9 +153,11 @@
 
 </head>
 
-<body>
+<body class="relative min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Transparent Jasmine Flower Background -->
+    <div class="fixed inset-0 pointer-events-none z-0 opacity-40 dark:opacity-10 bg-cover bg-center bg-no-repeat" style="background-image: url('{{ asset('images/bg-melati-transparent.svg') }}');"></div>
 
-    <div class="min-h-screen xl:flex sidebar-expanded" x-data :class="{ 'sidebar-expanded': $store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen }">
+    <div class="relative z-10 min-h-screen xl:flex sidebar-expanded" x-data :class="{ 'sidebar-expanded': $store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen }">
         @include('layouts.backdrop')
         @include('layouts.sidebar')
 
